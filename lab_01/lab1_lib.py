@@ -1,23 +1,35 @@
 # Material usado como referência: https://panda.ime.usp.br/panda/static/pythonds_pt/05-OrdenacaoBusca/OShellSort.html
 
+sequencia_ciura = [701, 301, 132, 57, 23, 10, 4, 1]
+
+
 def main():
     list_x = [54, 26, 93, 17, 77, 31, 44, 55, 20]
     shell_sort(list_x)
     print(list_x)
 
 
-def shell_sort(list_x):
-    sublistcount = len(list_x) // 2
+def shell_sort(list_x, gerador_h="SHELL"):
 
-    while sublistcount > 0:
+    # Sequência de Shell
+    if gerador_h == "SHELL".lower():
+        sublistcount = len(list_x) // 2
 
-        for startposition in range(sublistcount):
-            gap_insertion_sort(list_x, startposition, sublistcount)
+        while sublistcount > 0:
 
-        print("After increments of size", sublistcount,
-              "the list is", list_x)
+            for startposition in range(sublistcount):
+                gap_insertion_sort(list_x, startposition, sublistcount)
 
-        sublistcount = sublistcount // 2
+            print("After increments of size", sublistcount,
+                  "the list is", list_x)
+
+            sublistcount = sublistcount // 2
+
+    # Sequência de Ciura
+    # elif gerador_h == "CIURA".lower():
+
+    # Sequência de Knuth
+    # elif gerador_h == "KNUTH".lower():
 
 
 def gap_insertion_sort(list_x, start, gap):
