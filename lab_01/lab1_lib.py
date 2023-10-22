@@ -12,7 +12,7 @@ def main():
 def shell_sort(list_x, gerador_h="SHELL"):
 
     # Sequência de Shell
-    if gerador_h == "SHELL".lower():
+    if gerador_h.lower() == "SHELL".lower():
         sublistcount = len(list_x) // 2
 
         while sublistcount > 0:
@@ -26,10 +26,10 @@ def shell_sort(list_x, gerador_h="SHELL"):
             sublistcount = sublistcount // 2
 
     # Sequência de Ciura
-    # elif gerador_h == "CIURA".lower():
+    # elif gerador_h.lower == "CIURA".lower():
 
     # Sequência de Knuth
-    # elif gerador_h == "KNUTH".lower():
+    # elif gerador_h.lower == "KNUTH".lower():
 
 
 def gap_insertion_sort(list_x, start, gap):
