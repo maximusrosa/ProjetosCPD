@@ -9,11 +9,11 @@ def main():
     print(list_x)
 
 
-def shell_sort(list_x, gerador_h="SHELL"):
+def shell_sort(list_x, tamanho_lista, gerador_h="SHELL"):
 
     # Sequência de Shell
     if gerador_h.lower() == "SHELL".lower():
-        sublistcount = len(list_x) // 2
+        sublistcount = tamanho_lista // 2
 
         while sublistcount > 0:
 

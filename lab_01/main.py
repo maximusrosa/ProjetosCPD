@@ -3,12 +3,17 @@ import lab1_lib
 
 
 def main():
-    with open("numeros.csv", "r") as file:
-        # leia os números separados por vírgula do arquivo e coloque-os em uma lista
-        list_x = [int(x) for x in file.read().split(";")]
+    with open("entrada1.txt", "r") as file:
+        # readlines() retorna uma lista de strings no qual cada string é uma linha do arquivo
+        linhas_str = file.readlines()
 
-        lab1_lib.shell_sort(list_x, sys.argv[1])
-        print(list_x)
+        for linha in linhas_str:
+            # split() retorna uma lista com cada "número" (na forma de texto) da linha
+            lista_numeros = linha.split()
+            # usando map() para conversão
+            lista_numeros = list(map(int, lista_numeros))
+            tamanho_lista = lista_numeros.pop(0)
+            print(lista_numeros)
 
 
 main()
