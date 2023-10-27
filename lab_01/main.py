@@ -13,7 +13,9 @@ def main():
             # usando map() para conversão
             lista_numeros = list(map(int, lista_numeros))
             tamanho_lista = lista_numeros.pop(0)
-            print(lista_numeros)
+
+            lab1_lib.shell_sort(lista_numeros, tamanho_lista)
+            break
 
 
 main()
