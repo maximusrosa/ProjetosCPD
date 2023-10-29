@@ -20,18 +20,18 @@ def main():
     shell_sort(lista_tst2, len(lista_tst2), "KNUTH")
 
 
-def shell_sort(lista_x, tamanho_lista, gerador_h="SHELL"):
+def shell_sort(lista_x, list_size, gerador_h="SHELL"):
 
     # Sequência de Shell
     if gerador_h.lower() == "SHELL".lower():
         print(' '.join(str(s) for s in lista_x), "SEQ=SHELL")
 
-        sublist_count = tamanho_lista // 2
+        sublist_count = list_size // 2
 
         while sublist_count > 0:
 
             for start_position in range(sublist_count):
-                gap_insertion_sort(lista_x, start_position, sublist_count)
+                gap_insertion_sort(lista_x, start_position, sublist_count, list_size)
 
             print(' '.join(str(s) for s in lista_x), f"INCR={sublist_count}")
 
@@ -42,12 +42,12 @@ def shell_sort(lista_x, tamanho_lista, gerador_h="SHELL"):
         print(' '.join(str(s) for s in lista_x), "SEQ=KNUTH")
 
         sublist_count = 1
-        while sublist_count <= (tamanho_lista // 3):
+        while sublist_count <= (list_size // 3):
             sublist_count = 3 * sublist_count + 1
 
         while sublist_count > 0:
             for start_position in range(sublist_count):
-                gap_insertion_sort(lista_x, start_position, sublist_count)
+                gap_insertion_sort(lista_x, start_position, sublist_count, list_size)
 
             print(' '.join(str(s) for s in lista_x), f"INCR={sublist_count}")
 
@@ -59,13 +59,14 @@ def shell_sort(lista_x, tamanho_lista, gerador_h="SHELL"):
 
         for sublist_count in sequencia_ciura:
             for start_position in range(sublist_count):
-                gap_insertion_sort(lista_x, start_position, sublist_count)
+                gap_insertion_sort(lista_x, start_position, sublist_count, list_size)
 
             print(' '.join(str(s) for s in lista_x), f"INCR={sublist_count}")
 
 
-def gap_insertion_sort(lista_x, start, gap):
-    for i in range(start + gap, len(lista_x), gap):
+def gap_insertion_sort(lista_x, start, gap, list_size):
+
+    for i in range(start + gap, list_size, gap):
 
         current_value = lista_x[i]
         position = i
