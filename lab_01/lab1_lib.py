@@ -1,3 +1,4 @@
+
 # Material usado como referência: https://panda.ime.usp.br/panda/static/pythonds_pt/05-OrdenacaoBusca/OShellSort.html
 
 sequencia_ciura = [701, 301, 132, 57, 23, 10, 4, 1]

@@ -1,0 +1,4 @@
+# FILEPATH: /c:/Users/thiag/Área de Trabalho/ProjetosCPD/teste_ThiagoLindo
+
+def thiago_lindo():
+    print("O Thiago é muito lindo")
