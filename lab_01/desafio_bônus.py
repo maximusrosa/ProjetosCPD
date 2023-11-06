@@ -1,7 +1,3 @@
-# Material usado como referência:
-# https://panda.ime.usp.br/panda/static/pythonds_pt/05-OrdenacaoBusca/OShellSort.html
-# https://www.geeksforgeeks.org/python-program-to-sort-a-list-of-tuples-by-second-item/
-
 from collections import namedtuple
 
 Par = namedtuple('Par', ['lista', 'num_trocas'])
@@ -10,69 +6,87 @@ sequencia_ciura = [701, 301, 132, 57, 23, 10, 4, 1]
 
 
 def main():
-    lista_tst1 = [16, 14, 12, 1, 8, 4, 9, 6, 15, 13, 11, 2, 7, 3, 10, 5]
-    lista_tst2 = [3, 10, 5, 16, 14, 12, 1, 8, 4, 9, 6, 15, 13, 11, 2, 7]
+    with open("Sample Input.txt", "r") as file:
 
-    # Cria uma tupla com a lista original e o número de trocas realizadas para ordená-la
-    par_L1 = Par._make([lista_tst1.copy(),
-                        shell_sort(lista_tst1, len(lista_tst1), "CIURA")])
+        num_datasets = int(file.readline())
 
-    print("\n-------------------------------------------------\n")
+        for i in range(num_datasets):
+            file.read(1)  # pulando o '\n'
 
-    par_L2 = Par._make([lista_tst2.copy(),
-                        shell_sort(lista_tst2, len(lista_tst2), "CIURA")])
+            inf_dataset = file.readline().rstrip('\n').split(' ')
+            tam_strings = int(inf_dataset[0])
+            num_strings = int(inf_dataset[1])
 
-    lst_pares = [par_L1, par_L2]
+            lst_seq_dna = le_dataset(file, num_strings)          # cria uma lista de listas de chars (sequências de DNA)
+            lst_pares = ordena_listas(lst_seq_dna, tam_strings)  # ordena essas listas com base no número de trocas
 
-    sort_tuple_list(lst_pares)
+            for par in lst_pares:
+                print(lst2str(par.lista))
 
-    print("\n-------------------------------------------------\n")
-
-    for par in lst_pares:
-        print(f"Lista: {par.lista}", f"Total de trocas: {par.num_trocas}")
+            print('\n', end='')
 
 
-def shell_sort(lista_x, list_size, gerador_h="SHELL"):
+# Função para converter uma lista de chars em uma string
+def lst2str(lst):
+    # initialization of string to ""
+    str1 = ""
+
+    # using join function join the list s by
+    # separating words by str1
+    return str1.join(lst)
+
+
+# Função para armazenar as informações do dataset em uma lista de listas de chars
+def le_dataset(file, num_strings):
+    lst_seq_dna = []
+
+    for i in range(num_strings):
+        lst_seq_dna.append(split((file.readline().rstrip('\n'))))
+
+    return lst_seq_dna
+
+
+# Função para separar uma string em uma lista de chars
+def split(word):
+    return list(word)
+
+
+def shell_sort(lista_x, list_size, gerador_h="ciura"):
     trocas_realizadas = 0
 
     # Sequência de Shell
     if gerador_h.lower() == "SHELL".lower():
-        print(' '.join(str(s) for s in lista_x), "SEQ=SHELL")
 
-        sublist_count = list_size // 2
+        sublist_count = 1
+        while sublist_count < (list_size // 2):
+            sublist_count *= 2
 
         while sublist_count > 0:
 
             for start_position in range(sublist_count):
                 trocas_realizadas += gap_insertion_sort(lista_x, start_position, sublist_count, list_size)
 
-            print(' '.join(str(s) for s in lista_x), f"INCR={sublist_count}")
-
             sublist_count = sublist_count // 2
 
-        #print(f"Total de trocas: {trocas_realizadas}")
+        # print(f"Total de trocas: {trocas_realizadas}")
 
     # Sequência de Knuth
     elif gerador_h.lower() == "KNUTH".lower():
-        print(' '.join(str(s) for s in lista_x), "SEQ=KNUTH")
 
         sublist_count = 1
-        while sublist_count <= (list_size // 3):
+        while sublist_count < (list_size // 3):
             sublist_count = 3 * sublist_count + 1
 
         while sublist_count > 0:
             for start_position in range(sublist_count):
                 trocas_realizadas += gap_insertion_sort(lista_x, start_position, sublist_count, list_size)
 
-            print(' '.join(str(s) for s in lista_x), f"INCR={sublist_count}")
-
             sublist_count = (sublist_count - 1) // 3
 
-        #print(f"Total de trocas: {trocas_realizadas}")
+        # print(f"Total de trocas: {trocas_realizadas}")
 
-    # Sequência de Ciura (para n ≤ 701)
+    # Sequência de Ciura (para n < 701)
     elif gerador_h.lower() == "CIURA".lower():
-        print(' '.join(str(s) for s in lista_x), "SEQ=CIURA")
 
         seq_ciura = filtro_ciura(list_size)
 
@@ -80,9 +94,7 @@ def shell_sort(lista_x, list_size, gerador_h="SHELL"):
             for start_position in range(sublist_count):
                 trocas_realizadas += gap_insertion_sort(lista_x, start_position, sublist_count, list_size)
 
-            print(' '.join(str(s) for s in lista_x), f"INCR={sublist_count}")
-
-        #print(f"Total de trocas: {trocas_realizadas}")
+        # print(f"Total de trocas: {trocas_realizadas}")
 
     return trocas_realizadas
 
@@ -104,9 +116,23 @@ def gap_insertion_sort(lista_x, start, gap, list_size):
     return trocas
 
 
-# Função para filtrar a sequência de Ciura para n ≤ 701
+# Função para ordenar as listas conforme o número de trocas
+def ordena_listas(lst_seq_dna, tam_lista):
+    lst_pares = []
+
+    for seq_dna in lst_seq_dna:
+        par = Par._make([seq_dna.copy(),
+                         shell_sort(seq_dna, tam_lista)])
+        lst_pares.append(par)
+
+    sort_tuple_list(lst_pares)
+
+    return lst_pares
+
+
+# Função para filtrar apenas números menores que o tamanho da lista
 def filtro_ciura(list_size):
-    return [num for num in sequencia_ciura if num <= list_size]
+    return [num for num in sequencia_ciura if num < list_size]
 
 
 # Function to sort the list by second item of tuple
@@ -121,3 +147,8 @@ def sort_tuple_list(tup_lst):
 
 if __name__ == '__main__':
     main()
+
+# Material usado como referência:
+# https://panda.ime.usp.br/panda/static/pythonds_pt/05-OrdenacaoBusca/OShellSort.html
+# https://www.geeksforgeeks.org/python-program-to-sort-a-list-of-tuples-by-second-item/
+# https://www.geeksforgeeks.org/python-convert-list-characters-string/
