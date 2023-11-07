@@ -2,10 +2,9 @@ from collections import namedtuple
 
 Par = namedtuple('Par', ['lista', 'num_trocas'])
 
-sequencia_ciura = [701, 301, 132, 57, 23, 10, 4, 1]
-
 
 def main():
+
     with open(input(), "r") as file:
 
         num_datasets = int(file.readline())
@@ -41,28 +40,24 @@ def le_dataset(file, num_strings):
     lst_seq_dna = []
 
     for i in range(num_strings):
-        lst_seq_dna.append(split((file.readline().rstrip('\n'))))
+        lst_seq_dna.append(list((file.readline().rstrip('\n'))))
 
     return lst_seq_dna
-
-
-# Função para separar uma string em uma lista de chars
-def split(word):
-    return list(word)
 
 
 def shell_sort(lista_x, list_size):
     trocas_realizadas = 0
 
-    # Sequência de Ciura (para n < 701)
+    sublist_count = 1
+    while sublist_count < (list_size // 3):
+        sublist_count = 3 * sublist_count + 1
 
-    seq_ciura = filtro_ciura(list_size)
+    while sublist_count > 0:
 
-    for sublist_count in seq_ciura:
         for start_position in range(sublist_count):
             trocas_realizadas += gap_insertion_sort(lista_x, start_position, sublist_count, list_size)
 
-    # print(f"Total de trocas: {trocas_realizadas}")
+        sublist_count = (sublist_count - 1) // 3
 
     return trocas_realizadas
 
@@ -98,11 +93,6 @@ def ordena_listas(lst_seq_dna, tam_lista):
     return lst_pares
 
 
-# Função para filtrar apenas números menores que o tamanho da lista
-def filtro_ciura(list_size):
-    return [num for num in sequencia_ciura if num < list_size]
-
-
 # Function to sort the list by second item of tuple
 def sort_tuple_list(tup_lst):
     # reverse = None (Sorts in Ascending order)
@@ -119,4 +109,3 @@ if __name__ == '__main__':
 # Material usado como referência:
 # https://panda.ime.usp.br/panda/static/pythonds_pt/05-OrdenacaoBusca/OShellSort.html
 # https://www.geeksforgeeks.org/python-program-to-sort-a-list-of-tuples-by-second-item/
-# https://www.geeksforgeeks.org/python-convert-list-characters-string/
