@@ -6,7 +6,7 @@ sequencia_ciura = [701, 301, 132, 57, 23, 10, 4, 1]
 
 
 def main():
-    with open("Sample Input.txt", "r") as file:
+    with open(input(), "r") as file:
 
         num_datasets = int(file.readline())
 
@@ -51,50 +51,18 @@ def split(word):
     return list(word)
 
 
-def shell_sort(lista_x, list_size, gerador_h="ciura"):
+def shell_sort(lista_x, list_size):
     trocas_realizadas = 0
 
-    # Sequência de Shell
-    if gerador_h.lower() == "SHELL".lower():
-
-        sublist_count = 1
-        while sublist_count < (list_size // 2):
-            sublist_count *= 2
-
-        while sublist_count > 0:
-
-            for start_position in range(sublist_count):
-                trocas_realizadas += gap_insertion_sort(lista_x, start_position, sublist_count, list_size)
-
-            sublist_count = sublist_count // 2
-
-        # print(f"Total de trocas: {trocas_realizadas}")
-
-    # Sequência de Knuth
-    elif gerador_h.lower() == "KNUTH".lower():
-
-        sublist_count = 1
-        while sublist_count < (list_size // 3):
-            sublist_count = 3 * sublist_count + 1
-
-        while sublist_count > 0:
-            for start_position in range(sublist_count):
-                trocas_realizadas += gap_insertion_sort(lista_x, start_position, sublist_count, list_size)
-
-            sublist_count = (sublist_count - 1) // 3
-
-        # print(f"Total de trocas: {trocas_realizadas}")
-
     # Sequência de Ciura (para n < 701)
-    elif gerador_h.lower() == "CIURA".lower():
 
-        seq_ciura = filtro_ciura(list_size)
+    seq_ciura = filtro_ciura(list_size)
 
-        for sublist_count in seq_ciura:
-            for start_position in range(sublist_count):
-                trocas_realizadas += gap_insertion_sort(lista_x, start_position, sublist_count, list_size)
+    for sublist_count in seq_ciura:
+        for start_position in range(sublist_count):
+            trocas_realizadas += gap_insertion_sort(lista_x, start_position, sublist_count, list_size)
 
-        # print(f"Total de trocas: {trocas_realizadas}")
+    # print(f"Total de trocas: {trocas_realizadas}")
 
     return trocas_realizadas
 
