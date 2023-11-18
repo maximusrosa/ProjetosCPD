@@ -1,48 +1,15 @@
+"""
+Implementação do algoritmo quicksort utilizando o particionamento de Hoare com duas escolhas de particionador:
+Mediana de 3 e Escolha Aleatória
+
+Informações da saída: tamanho da entrada, número de trocas, número de chamadas recursivas, tempo de execução
+"""
+
 from time import perf_counter
 from random import randint
-from statistics import median
-
-# Implementação do algoritmo quicksort utilizando o particionamento de Hoare com duas escolhas de particionador:
-# Mediana de 3 e Escolha Aleatória
-
-# Informações da saída: tamanho da entrada, número de trocas, número de chamadas recursivas, tempo de execução
-
-def main():
-    global swaps, rec_count
-
-    print("Iniciando execução do algoritmo quicksort com particionamento de Hoare e mediana de 3.")
-    #output_file = open("stats-mediana-hoare.txt", "a")
-
-    with open("entrada-quicksort.txt", "r") as input_file:
-        linhas_str = input_file.readlines()
-
-        for linha in linhas_str:
-            lista_num = linha.split()
-            lista_num = list(map(int, lista_num))
-            tam_lista = lista_num.pop(0)
-
-            #output_file.write(f"TAMANHO ENTRADA {tam_lista}\n")
-            print(f"TAMANHO ENTRADA {tam_lista}")
-
-            swaps = rec_count = 0
-
-            start_time = perf_counter()
-            quicksort_hoare(lista_num, 0, tam_lista - 1, 'md3')
-            end_time = perf_counter()
-            elapsed_time = (end_time - start_time) * 1000
-
-            #output_file.write(f"SWAPS {swaps}\n"
-            #                  f"RECURSOES {rec_count}\n"
-            #                  f"TEMPO {elapsed_time:.3f}\n")
-            print(f"SWAPS {swaps}")
-            print(f"RECURSOES {rec_count}")
-            print(f"TEMPO {elapsed_time:.3f}")
-
-    #output_file.close()
-    print("Fim da execução.")
 
 
-def quicksort_hoare(lista_x, first, last, pivot_choice='rand'):
+def quicksort_hoare(lista_x, first, last, pivot_choice='md3'):
     global rec_count
 
     if first >= last:
@@ -61,25 +28,20 @@ def partition(lista_x, first, last, pivot_choice):
     global swaps
 
     if pivot_choice.lower() == 'rand'.lower():
-        pivot_position = randint(first, last)
-        lista_x[first], lista_x[pivot_position] = lista_x[pivot_position], lista_x[first]
+        pivot_index = randint(first, last)
+        lista_x[first], lista_x[pivot_index] = lista_x[pivot_index], lista_x[first]
+        pivot_value = lista_x[first]
         swaps += 1
 
     elif pivot_choice.lower() == 'md3'.lower():
-        pivot_value = median([lista_x[first], lista_x[last], lista_x[(first + last) // 2]])
+        pivot_value, pivot_index = mediana_de_3(lista_x, first, last)
 
-        for num in lista_x:
-            if num == pivot_value:
-                pivot_position = lista_x.index(num)
-                break
-
-        lista_x[first], lista_x[pivot_position] = lista_x[pivot_position], lista_x[first]
+        lista_x[first], lista_x[pivot_index] = lista_x[pivot_index], lista_x[first]
         swaps += 1
 
     else:
         assert False, "Escolha de particionador inválida."
 
-    pivot_value = lista_x[first]
     leftmark = first + 1
     rightmark = last
     done = False
@@ -95,11 +57,59 @@ def partition(lista_x, first, last, pivot_choice):
             lista_x[leftmark], lista_x[rightmark] = lista_x[rightmark], lista_x[leftmark]
             swaps += 1
 
-    # coloca o pivô na posição correta        
+    # coloca o pivô na posição correta
     lista_x[first], lista_x[rightmark] = lista_x[rightmark], lista_x[first]
     swaps += 1
 
     return rightmark
+
+def mediana_de_3(lista, first, last):
+    middle = (first + last) // 2
+
+    # Create a list of tuples where each tuple is (value, index)
+    candidates = [(lista[first], first), (lista[middle], middle), (lista[last], last)]
+
+    # Sort the list of tuples by the first element of each tuple (the value)
+    candidates.sort(key=lambda x: x[0])
+
+    # Return the second element of the second tuple (the median value and its index)
+    return candidates[1]
+
+
+def main():
+    global swaps, rec_count
+
+    print("\nSaída com pivô escolhido pela mediana de três:\n")
+    #output_file = open("stats-mediana-hoare.txt", "a")
+
+    with open("entrada-quicksort.txt", "r") as input_file:
+        linhas_str = input_file.readlines()
+
+        for linha in linhas_str:
+            lista_num = linha.split()
+            lista_num = list(map(int, lista_num))
+            tam_lista = lista_num.pop(0)
+            
+            #output_file.write(f"TAMANHO ENTRADA {tam_lista}\n")
+            print(f"TAMANHO ENTRADA {tam_lista}")
+
+            swaps = rec_count = 0
+
+            start_time = perf_counter()
+            quicksort_hoare(lista_num, 0, tam_lista - 1)
+            end_time = perf_counter()
+            elapsed_time = (end_time - start_time) * 1000
+
+            #output_file.write(f"SWAPS {swaps}\n"
+            #                  f"RECURSOES {rec_count}\n"
+            #                  f"TEMPO {elapsed_time:.3f}\n")
+            print(f"SWAPS {swaps}")
+            print(f"RECURSOES {rec_count}")
+            print(f"TEMPO {elapsed_time:.3f}")
+            print('\n', end='')
+
+    #output_file.close()
+    print("Deu bom carai")
 
 
 if __name__ == "__main__":
