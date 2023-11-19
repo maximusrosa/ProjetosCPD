@@ -7,9 +7,9 @@ Informações da saída: tamanho da entrada, número de trocas, número de chama
 
 from time import perf_counter
 from random import randint
+global swaps, rec_count
 
-
-def quicksort_hoare(lista_x, first, last, pivot_choice='md3'):
+def quicksort(lista_x, first, last, pivot_choice):
     global rec_count
 
     if first >= last:
@@ -17,9 +17,9 @@ def quicksort_hoare(lista_x, first, last, pivot_choice='md3'):
     else:
         splitpoint = partition(lista_x, first, last, pivot_choice)
 
-        quicksort_hoare(lista_x, first, splitpoint - 1, pivot_choice)
+        quicksort(lista_x, first, splitpoint - 1, pivot_choice)
         rec_count += 1
-        quicksort_hoare(lista_x, splitpoint + 1, last, pivot_choice)
+        quicksort(lista_x, splitpoint + 1, last, pivot_choice)
         rec_count += 1
 
     return lista_x
@@ -79,36 +79,27 @@ def mediana_de_3(lista, first, last):
 def main():
     global swaps, rec_count
 
-    print("\nSaída com pivô escolhido pela mediana de três:\n")
-    #output_file = open("stats-mediana-hoare.txt", "a")
-
     with open("entrada-quicksort.txt", "r") as input_file:
-        linhas_str = input_file.readlines()
+        linhas_arq = input_file.readlines()
 
-        for linha in linhas_str:
-            lista_num = linha.split()
-            lista_num = list(map(int, lista_num))
+        for linha in linhas_arq:
+            lista_num = list(map(int, linha.split()))
             tam_lista = lista_num.pop(0)
-            
-            #output_file.write(f"TAMANHO ENTRADA {tam_lista}\n")
+
             print(f"TAMANHO ENTRADA {tam_lista}")
 
             swaps = rec_count = 0
 
             start_time = perf_counter()
-            quicksort_hoare(lista_num, 0, tam_lista - 1)
+            quicksort(lista_num, 0, tam_lista - 1, 'md3')
             end_time = perf_counter()
-            elapsed_time = (end_time - start_time) * 1000
+            elapsed_time = (end_time - start_time) * 1000  # em milissegundos
 
-            #output_file.write(f"SWAPS {swaps}\n"
-            #                  f"RECURSOES {rec_count}\n"
-            #                  f"TEMPO {elapsed_time:.3f}\n")
             print(f"SWAPS {swaps}")
             print(f"RECURSOES {rec_count}")
             print(f"TEMPO {elapsed_time:.3f}")
             print('\n', end='')
 
-    #output_file.close()
     print("Deu bom carai")
 
 
