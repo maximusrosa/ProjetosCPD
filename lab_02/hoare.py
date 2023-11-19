@@ -27,20 +27,20 @@ def quicksort(lista_x, first, last, pivot_choice):
 def partition(lista_x, first, last, pivot_choice):
     global swaps
 
-    if pivot_choice.lower() == 'rand'.lower():
+    if pivot_choice == "aleatorio":
         pivot_index = randint(first, last)
         lista_x[first], lista_x[pivot_index] = lista_x[pivot_index], lista_x[first]
         pivot_value = lista_x[first]
         swaps += 1
 
-    elif pivot_choice.lower() == 'md3'.lower():
+    elif pivot_choice == "mediana":
         pivot_value, pivot_index = mediana_de_3(lista_x, first, last)
 
         lista_x[first], lista_x[pivot_index] = lista_x[pivot_index], lista_x[first]
         swaps += 1
 
     else:
-        assert False, "Escolha de particionador inválida."
+        assert False, "Escolha de pivô inválida."
 
     leftmark = first + 1
     rightmark = last
