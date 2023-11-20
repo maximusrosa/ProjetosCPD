@@ -5,9 +5,7 @@ def salva_resultados(particionamento, escolha_pivo):
     output_file = open(f"stats-{escolha_pivo}-{particionamento}.txt", "w")
 
     with open("entrada-quicksort.txt", "r") as input_file:
-        linhas_arq = input_file.readlines()
-
-        for linha in linhas_arq:
+        for linha in input_file:
             lista_num = list(map(int, linha.split()))
             tam_lista = lista_num.pop(0)
 
