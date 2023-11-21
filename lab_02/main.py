@@ -1,5 +1,5 @@
 """
-Implementação do algoritmo quicksort utilizando os particionamento de Hoare e Lomuto com duas escolhas de particionador:
+Implementação do algoritmo quicksort utilizando os particionamentos de Hoare e Lomuto com duas escolhas de particionador:
 Mediana de 3 e Escolha Aleatória
 
 Informações da saída: tamanho da entrada, número de trocas, número de chamadas recursivas, tempo de execução
