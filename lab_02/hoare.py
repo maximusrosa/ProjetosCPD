@@ -1,10 +1,3 @@
-"""
-Implementação do algoritmo quicksort utilizando o particionamento de Hoare com duas escolhas de particionador:
-Mediana de 3 e Escolha Aleatória
-
-Informações da saída: tamanho da entrada, número de trocas, número de chamadas recursivas, tempo de execução
-"""
-
 from time import perf_counter
 from random import randint
 global swaps, rec_count
@@ -80,9 +73,7 @@ def main():
     global swaps, rec_count
 
     with open("entrada-quicksort.txt", "r") as input_file:
-        linhas_arq = input_file.readlines()
-
-        for linha in linhas_arq:
+        for linha in input_file:
             lista_num = list(map(int, linha.split()))
             tam_lista = lista_num.pop(0)
 
