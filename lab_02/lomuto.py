@@ -47,3 +47,6 @@ def partition(lista_x, low, high, pivot_choice):
     lista_x[i + 1], lista_x[high] = lista_x[high], lista_x[i + 1]
     swaps += 1
     return i + 1
+
+
+print(quicksort([3, 2, 1, 5, 4], 0, 4, "mediana"))

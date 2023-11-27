@@ -82,7 +82,7 @@ def main():
             swaps = rec_count = 0
 
             start_time = perf_counter()
-            quicksort(lista_num, 0, tam_lista - 1, 'md3')
+            quicksort(lista_num, 0, tam_lista - 1, 'mediana')
             end_time = perf_counter()
             elapsed_time = (end_time - start_time) * 1000  # em milissegundos
 
