@@ -1,56 +1,73 @@
-def countingSortForRadix(inputArray, placeValue):
-    # We can assume that the number of digits used to represent
-    # all numbers on the placeValue position is not greater than 10
-    countArray = [0] * 10
-    inputSize = len(inputArray)
+# insertion sort a[lo..hi], starting at dth character
+def insertion_sort(a, lo, hi, d):
+    for i in range(lo, hi + 1):
+        j = i
+        while j > lo and less(a[j], a[j-1], d):
+            exch(a, j, j-1)
+            j -= 1
 
-    # placeElement is the value of the current place value
-    # of the current element, e.g. if the current element is
-    # 123, and the place value is 10, the placeElement is
-    # equal to 2
-    for i in range(inputSize):
-        placeElement = (inputArray[i] // placeValue) % 10
-        countArray[placeElement] += 1
+# exchange a[i] and a[j]
+def exch(a, i, j):
+    temp = a[i]
+    a[i] = a[j]
+    a[j] = temp
 
-    for i in range(1, 10):
-        countArray[i] += countArray[i-1]
+# is v less than w, starting at character d
+def less(v, w, d):
+    for i in range(d, min(len(v), len(w))):
+        if v[i] < w[i]:
+            return True
+        if v[i] > w[i]:
+            return False
+    return len(v) < len(w)
 
-    # Reconstructing the output array
-    outputArray = [0] * inputSize
-    i = inputSize - 1
-    while i >= 0:
-        currentEl = inputArray[i]
-        placeElement = (inputArray[i] // placeValue) % 10
-        countArray[placeElement] -= 1
-        newPosition = countArray[placeElement]
-        outputArray[newPosition] = currentEl
-        i -= 1
 
-    return outputArray
+def char_at(s, d):
+    if d == len(s):
+        return -1
+    return ord(s[d])
 
-def radixSort(inputArray):
-    # Step 1 -> Find the maximum element in the input array
-    maxEl = max(inputArray)
+def insertion(a, lo, hi, d):
+    for i in range(lo, hi + 1):
+        j = i
+        while j > lo and a[j][d:] < a[j - 1][d:]:
+            a[j], a[j - 1] = a[j - 1], a[j]
+            j -= 1
 
-    # Step 2 -> Find the number of digits in the `max` element
-    D = 1
-    while maxEl > 0:
-        maxEl /= 10
-        D += 1
+def MSD_sort(a, lo, hi, d, aux):
+    R = 256  # ASCII table size
+    CUTOFF = 15  # Cutoff for insertion sort
 
-    # Step 3 -> Initialize the place value to the least significant place
-    placeVal = 1
+    # cutoff to insertion sort for small subarrays
+    if hi <= lo + CUTOFF:
+        insertion(a, lo, hi, d)
+        return
 
-    # Step 4
-    outputArray = inputArray
-    while D > 0:
-        outputArray = countingSortForRadix(outputArray, placeVal)
-        placeVal *= 10
-        D -= 1
+    # compute frequency counts
+    count = [0] * (R + 2)
+    for i in range(lo, hi + 1):
+        c = char_at(a[i], d)
+        count[c + 2] += 1
 
-    return outputArray
+    # transform counts to indicies
+    for r in range(R + 1):
+        count[r + 1] += count[r]
 
-input = [2,20,61,997,1,619]
-print(input)
-sorted = radixSort(input)
-print(sorted)
+    # distribute
+    for i in range(lo, hi + 1):
+        c = char_at(a[i], d)
+        aux[count[c + 1]] = a[i]
+        count[c + 1] += 1
+
+    # copy back
+    for i in range(lo, hi + 1):
+        a[i] = aux[i - lo]
+
+    # recursively sort for each character (excludes sentinel -1)
+    for r in range(R):
+        MSD_sort(a, lo + count[r], lo + count[r + 1] - 1, d + 1, aux)
+
+def sort(a):
+    n = len(a)
+    aux = [None] * n
+    MSD_sort(a, 0, n - 1, 0, aux)
