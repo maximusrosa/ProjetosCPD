@@ -1,3 +1,0 @@
-C:/Users/maxbo/PyCharmProjects/ProjetosCPD/cmake-build-debug/CMakeFiles/ProjetosCPD.dir
-C:/Users/maxbo/PyCharmProjects/ProjetosCPD/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/maxbo/PyCharmProjects/ProjetosCPD/cmake-build-debug/CMakeFiles/rebuild_cache.dir
