@@ -1,4 +1,4 @@
-from radixsort import insertion_sort, MSD_sort, sort
+from radixsort import insertion_sort, radixsort
 
 def tests_insertion_sort():
     # Test empty list
@@ -35,17 +35,17 @@ def tests_insertion_sort():
 import random
 import string
 
-def test_MSD_sort_large():
-    # Generate a list of 1000 random strings, each of length 5
-    a = [''.join(random.choices(string.ascii_lowercase, k=5)) for _ in range(50)]
+def test_radixsort():
+    # Generate a list of 1000 random strings, each of random length up to 10
+    a = [''.join(random.choices(string.ascii_lowercase, k=random.randint(1, 10))) for _ in range(1000)]
     
     # Make a copy of the list and sort it using Python's built-in sort
     expected = sorted(a.copy())
     
     # Sort the list using MSD_sort
-    sort(a)
+    radixsort(a)
     
     # Check that the two lists are the same
     assert a == expected
 
-test_MSD_sort_large()
+test_radixsort()
