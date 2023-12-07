@@ -37,18 +37,18 @@ def main():
     # Create a hash table of size 10
     hash_table = HashTable(10)
 
-    # Add some key-value pairs
-    hash_table.set('Alice', 'January')
-    hash_table.set('Bob', 'May')
+    # Set some values
+    hash_table.set('a1', 1)
+    hash_table.set('a2', 1)
+    hash_table.set('b', 2)
+    hash_table.set('c', 3)
+    hash_table.set('d', 4)
 
-    # Retrieve a value
-    print(hash_table.get('Alice'))  # Outputs: 'January'
-
-    # Remove a key-value pair
-    # hash_table.remove('Bob')
-
-    # This will raise a KeyError, as 'Bob' was removed
-    print(hash_table.get('Bob'))
+    # Get some values
+    print(hash_table.get('a1'))
+    print(hash_table.get('a2'))
+    print(hash_table.get('b'))
+    print(hash_table.get('c'))
 
 
 if __name__ == '__main__':
