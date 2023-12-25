@@ -2,7 +2,7 @@ from collections import namedtuple
 import csv
 from time import time
 
-ParChaveValor = namedtuple('ParChaveValor', ['id', 'chave', 'valor'])
+Jogador = namedtuple('Jogador', ['id', 'nome', 'posições'])
 
 
 class HashTable:
@@ -11,74 +11,72 @@ class HashTable:
         self.table = [[] for _ in range(size)]
 
     def _hash(self, id):
-        numeros = [1, 2, 3, 5, 7, 11, 13, 17, 19,
-                   23, 29]  # lista de números primos com o 1
+        # lista de números primos com o 1
+        numeros = [1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
         resultado = 1
         for i, digito in enumerate(str(id)):
             # Ex: id = 357741 -> 1^3 + 2^5 + 3^7 + 5^7 + 7^4 + 11^1
             resultado += numeros[i] ** int(digito)
         return resultado % self.size
+    
+    def _resize(self):
+        self.size *= 2  # Dobra o tamanho da tabela hash
+        new_table = [[] for _ in range(self.size)]
+        for bucket in self.table:
+            for jogador in bucket:
+                hash_index = self._hash(jogador.id[0])
+                new_table[hash_index].append(jogador)
+        self.table = new_table
 
     def insert(self, id, key, value):
 
         hash_index = self._hash(id)
 
-        self.table[hash_index].append(ParChaveValor(id, key, value))
+        self.table[hash_index].append(Jogador(id, key, value))
 
         # Se a taxa de ocupação de uma das listas encadeadas é maior que 70%
         # if len(self.table[hash_index]) / self.size > 0.7:
         #   self._resize()  # Redimensiona a tabela hash
 
-    def _resize(self):
-        self.size *= 2  # Dobra o tamanho da tabela hash
-        new_table = [[] for _ in range(self.size)]
-        for bucket in self.table:
-            for par in bucket:
-                hash_index = self._hash(par.id[0])
-                new_table[hash_index].append(par)
-        self.table = new_table
-
     def get(self, id):
         consultas = 0
         hash_index = self._hash(id)
-        for par in self.table[hash_index]:
+        for jogador in self.table[hash_index]:
             consultas += 1
-            if par.id == id:
-                return (f"{id}", f"{par.chave}", consultas)
+            if jogador.id == id:
+                return (f"{id}", f"{jogador.nome}", consultas)
         return (f"{id}", "NAO ENCONTRADO", consultas)
 
     def remove(self, id):
         hash_index = self._hash(id)
-        for i, par in enumerate(self.table[hash_index]):
-            print(f"nome: {par.id}")
-            if par.id == id:
+        for i, jogador in enumerate(self.table[hash_index]):
+            print(f"nome: {jogador.id}")
+            if jogador.id == id:
                 self.table[hash_index].pop(i)
                 return
 
     def __str__(self):
         output = ""
-        for i, par_list in enumerate(self.table):
+        for i, lista_jogadores in enumerate(self.table):
             output += f"{i}: "
-            if par_list:
+            if lista_jogadores:
                 output += ", ".join(
-                    [f"({par.id}, {par.chave}, {par.valor})" for par in par_list])
+                    [f"({jogador.id}, {jogador.nome}, {jogador.posições})" for jogador in lista_jogadores])
             output += "\n"
         return output
 
-
-def calcular_media(self):
-    soma = 0
-    contador = 0
-    for lista in self.table:
-        if lista:  # se a lista não estiver vazia
-            soma += len(lista)
-            contador += 1
-    media = soma / contador if contador != 0 else 0
-    return media
+    def média_ocupação(self):
+        soma = 0
+        contador = 0
+        for lista in self.table:
+            if lista:  # se a lista não estiver vazia
+                soma += len(lista)
+                contador += 1
+        media = soma / contador if contador != 0 else 0
+        return media
 
 
 def cria_tabela(tamanho):
-    inserções = 0
     hash_table = HashTable(tamanho)
 
     with open('players.csv', 'r') as file:
@@ -93,23 +91,28 @@ def cria_tabela(tamanho):
             id = row[0]
             key = row[1]
             value = row[2:]
-            inserções += 1
 
             hash_table.insert(id, key, value)  # insere na tabela
 
+        end = time()
+
         # calcula a média do tamanho das listas não vazias
-        media = calcular_media(hash_table)
+        media = hash_table.média_ocupação()
 
         # maior tamanho de lista
         tamanho_max = max([len(lista) for lista in hash_table.table])
 
-        end = time()
+        posicoes_ocupadas = 0
+
+        for lista in hash_table.table:
+            if lista:  # se a lista não estiver vazia
+                posicoes_ocupadas += 1
 
         # salva num arquivo o tempo de construção em milisegundos
         with open(f'experimento{tamanho}.txt', 'w') as file:
             file.write(f'Parte 1: ESTATISTICAS DA TABELA HASH\n'
                        f'Tempo de construcao da tabela: {end - start:.5f} segundos ou {(end - start)*1000:.5f} milisegundos\n'
-                       f'Taxa de ocupacao: {inserções/tamanho:.0f}%\n'
+                       f'Taxa de ocupacao: {(posicoes_ocupadas/tamanho) * 100:.2f}%\n'
                        f'Tamanho maximo de lista: {tamanho_max:.0f} elementos\n'
                        f'Tamanho medio de lista: {media:.1f} elementos\n\n')
 
@@ -119,18 +122,16 @@ def cria_tabela(tamanho):
 def estatisticas_consultas(hash_table, tamanho):
 
     with open(f'consultas.csv', 'r') as file:
-        reader = csv.reader(file)
-        # conta o número de linhas do arquivo para inicializar a lista de tuplas
-        lines = list(reader)
+        reader = list(csv.reader(file))
 
-        lista_de_tuplas = [None] * len(lines)
+        lista_de_tuplas = [None] * len(reader)
 
         start = time()
 
-        for i, row in enumerate(lines):
+        for i, row in enumerate(reader):
             id = row[0]
 
-            # retorna uma tupla com o (id, chave, num_consultas) mas chave = NAO ENCONTRADO se não achar o id
+            # retorna uma tupla com o (id, nome, num_consultas) mas nome = NAO ENCONTRADO se não achar o id
             tupla = hash_table.get(id)
             lista_de_tuplas[i] = (tupla[0], tupla[1], tupla[2])
 
