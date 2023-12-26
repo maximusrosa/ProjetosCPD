@@ -1,11 +1,11 @@
 Parte 1: ESTATISTICAS DA TABELA HASH
-Tempo de construcao da tabela: 0.09418 segundos ou 94.18225 milisegundos
-Taxa de ocupacao: 19%
+Tempo de construcao da tabela: 0.20893 segundos ou 208.92572 milisegundos
+Taxa de ocupacao: 100.00%
 Tamanho maximo de lista: 37 elementos
 Tamanho medio de lista: 19.0 elementos
 
 Parte 2: ESTATISTICAS DA CONSULTA
-TEMPO PARA REALIZACAO DE TODAS CONSULTAS: 0.07814 milisegundos
+TEMPO PARA REALIZACAO DE TODAS CONSULTAS: 0.15753 milisegundos
 ('158023', 'Lionel Andres Messi Cuccittini', 1)
 ('20801', 'Cristiano Ronaldo dos Santos Aveiro', 1)
 ('200389', 'Jan Oblak', 1)
