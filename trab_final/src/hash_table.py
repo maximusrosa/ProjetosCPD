@@ -17,7 +17,7 @@ class Jogador:
         self.media_global = media_global
 
     def __str__(self):
-        return f'({self.id}, {self.nome_curto}, {self.nome}, {self.posicoes}, {self.nacionalidade}, {self.clube}, {self.liga}, {self.soma_notas}, {self.num_avaliacoes}, {self.media_global})'
+        return f'({self.id}, {self.nome_curto}, {self.nome}, {self.posicoes}, {self.nacionalidade}, {self.clube}, {self.liga}, {self.soma_notas}, {self.num_avaliacoes}, {self.media_global:.6f})'
 
 
 class HashTable:
