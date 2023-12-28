@@ -2,8 +2,22 @@ from collections import namedtuple
 import csv
 from time import time
 
-Jogador = namedtuple('Jogador',
-                     ['id', 'nome_curto', 'nome', 'posicoes', 'nacionalidade', 'clube', 'liga', 'media_global'])
+
+class Jogador:
+    def __init__(self, id, nome_curto, nome, posicoes, nacionalidade, clube, liga, soma_notas, num_avaliacoes, media_global):
+        self.id = id
+        self.nome_curto = nome_curto
+        self.nome = nome
+        self.posicoes = posicoes
+        self.nacionalidade = nacionalidade
+        self.clube = clube
+        self.liga = liga
+        self.soma_notas = soma_notas
+        self.num_avaliacoes = num_avaliacoes
+        self.media_global = media_global
+
+    def __str__(self):
+        return f'({self.id}, {self.nome_curto}, {self.nome}, {self.posicoes}, {self.nacionalidade}, {self.clube}, {self.liga}, {self.soma_notas}, {self.num_avaliacoes}, {self.media_global})'
 
 
 class HashTable:
@@ -20,7 +34,7 @@ class HashTable:
             if lista_jogadores:
                 output += ", ".join(
                     [
-                        f'({jogador.id}, {jogador.nome_curto}, {jogador.nome}, {jogador.posicoes}, {jogador.nacionalidade}, {jogador.clube}, {jogador.liga}, {jogador.media_global:.6f})'
+                        f'({jogador.id}, {jogador.nome_curto}, {jogador.nome}, {jogador.posicoes}, {jogador.nacionalidade}, {jogador.clube}, {jogador.liga}, {jogador.soma_notas}, {jogador.num_avaliacoes}, {jogador.media_global})'
                         for jogador in lista_jogadores])
 
             output += "\n"
@@ -52,25 +66,10 @@ class HashTable:
 
         self.table = new_table
 
-    def insert(self, id, nome_curto, nome, posicoes, nacionalidade, clube, liga):
-        hash_index = self._hash(id)
+    def insert(self, Jogador):
+        hash_index = self._hash(Jogador.id)
 
-        with open('../data/minirating.csv', 'r') as file:
-            reader = csv.reader(file)
-            next(reader)
-
-            soma_notas = 0
-            num_avaliacoes = 0
-
-            for row in reader:
-                if row[1] == id:
-                    soma_notas += float(row[2])
-                    num_avaliacoes += 1
-
-            media_global = round(soma_notas / num_avaliacoes, 6) if num_avaliacoes != 0 else 0
-
-        self.table[hash_index].append(Jogador(id, nome_curto, nome, posicoes,
-                                              nacionalidade, clube, liga, media_global))
+        self.table[hash_index].append(Jogador)
 
     def get(self, id):
         cmps = 0
@@ -122,9 +121,8 @@ class HashTable:
                 nacionalidade = row[4]
                 clube = row[5]
                 liga = row[6]
-
-                self.insert(id, nome_curto, nome, posicoes,
-                            nacionalidade, clube, liga)
+                self.insert(Jogador(id, nome_curto, nome, posicoes,
+                                    nacionalidade, clube, liga, 0, 0, 0))
 
     def cons_stats(self):
         with open('../data/players.csv', 'r') as file:
@@ -143,8 +141,8 @@ class HashTable:
                 liga = row[6]
 
                 # insere na tabela todos os valores acima
-                self.insert(id, nome_curto, nome, posicoes,
-                            nacionalidade, clube, liga)
+                self.insert(Jogador(id, nome_curto, nome, posicoes,
+                            nacionalidade, clube, liga, 0, 0, 0))
 
             end = time()
 
@@ -191,6 +189,30 @@ class HashTable:
             for info_consulta in consultas:
                 file.write(f'{info_consulta}\n')
 
+    def minirating(self):
+        with open('../data/minirating.csv', 'r') as file:
+            reader = csv.reader(file)
+            next(reader)
+
+            for row in reader:
+                # Acha o index do jogador do id atual
+                hash_index = self._hash(row[1])
+
+                # Percorre a lista de jogadores do id atual
+                for jogador in self.table[hash_index]:
+                    if jogador.id == row[1]:
+                        # Quando achar o jogador, atualiza a soma das notas e o número de avaliações
+                        jogador.soma_notas += float(row[2])
+                        jogador.num_avaliacoes += 1
+                        jogador.media_global = jogador.soma_notas / \
+                            jogador.num_avaliacoes if jogador.num_avaliacoes != 0 else 0
+
+    # Procura o Messi na tabela hash e printa suas informações pra verificar a media global do enunciado !
+            for jogador in self.table[self._hash("158023")]:
+                if jogador.id == "158023":
+                    print(jogador, end='\n\n')
+                    break
+
 
 def main():
     tamanho = 7993
@@ -200,10 +222,16 @@ def main():
     hash_table.fill('../data/players.csv')
     end = time()
 
+    print(
+        f'Tempo de construção da tabela: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos')
+
+    hash_table.minirating()  # Atualiza a tabela hash com a média global
+
+    # Escreve no arquivo a tabela hash com a média global atualizada
     with open('../output/hash_table.txt', 'w') as file:
         file.write(str(hash_table))
 
-    print(f'Tempo de construção da tabela: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos')
+    print(hash_table)
 
     # hash_table.remove('(id de alguém)') ## testar
     # resize testar
