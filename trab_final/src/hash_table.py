@@ -204,8 +204,12 @@ class HashTable:
                         # Quando achar o jogador, atualiza a soma das notas e o número de avaliações
                         jogador.soma_notas += float(row[2])
                         jogador.num_avaliacoes += 1
-                        jogador.media_global = jogador.soma_notas / \
-                            jogador.num_avaliacoes if jogador.num_avaliacoes != 0 else 0
+
+                # Atualiza a média global de todos os jogadores da tabela hash
+                for lista_jogadores in self.table:
+                    for jogador in lista_jogadores:
+                        if jogador.num_avaliacoes != 0:
+                            jogador.media_global = jogador.soma_notas / jogador.num_avaliacoes
 
     # Procura o Messi na tabela hash e printa suas informações pra verificar a media global do enunciado !
             for jogador in self.table[self._hash("158023")]:
