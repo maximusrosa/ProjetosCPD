@@ -1,6 +1,0 @@
-Parte 1: ESTATISTICAS DA TABELA HASH
-Tempo de construcao da tabela: 0.19230 segundos ou 192.29627 milisegundos
-Taxa de ocupacao: 81.49%
-Tamanho maximo de lista: 16 elementos
-Tamanho medio de lista: 3.5 elementos
-
