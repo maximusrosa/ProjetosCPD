@@ -1,10 +1,16 @@
-from collections import namedtuple
 import csv
 from time import time
+from collections import namedtuple
+
+# Constantes
+ID = '130642' # id do usuário com mais avaliações
+TAMANHO_TABELA = 7993
+
+Avaliacao = namedtuple('Avaliacao', ['player_id', 'nota'])
 
 
 class Jogador:
-    def __init__(self, id, nome_curto, nome, posicoes, nacionalidade, clube, liga, soma_notas, num_avaliacoes, media_global):
+    def __init__(self, id, nome_curto, nome, posicoes, nacionalidade, clube, liga):
         self.id = id
         self.nome_curto = nome_curto
         self.nome = nome
@@ -12,22 +18,32 @@ class Jogador:
         self.nacionalidade = nacionalidade
         self.clube = clube
         self.liga = liga
-        self.soma_notas = soma_notas
-        self.num_avaliacoes = num_avaliacoes
-        self.media_global = media_global
+
+        self.soma_notas = self.num_avaliacoes = self.media_global = 0
 
     def __str__(self):
-        return f'({self.id}, {self.nome_curto}, {self.nome}, {self.posicoes}, {self.nacionalidade}, {self.clube}, {self.liga}, {self.soma_notas}, {self.num_avaliacoes}, {self.media_global:.6f})'
+        return f'({self.id}, {self.nome_curto}, {self.nome}, {self.posicoes}, {self.nacionalidade}, {self.clube}, {self.liga}, {self.media_global:.6f})'
 
 
 class Usuario:
-    def __init__(self, id, tupla):
+    def __init__(self, id):
         self.id = id
-        self.lista_tuplas = [tupla]
-        # self.tags -> talvez uma string com as tags separadas por vírgula
+        self.avaliacoes = []
 
     def __str__(self):
-        return f'({self.id}, {self.lista_tuplas})'
+        return f'({self.id}, {self.avaliacoes})'
+
+    # temos que substituir o ".sort" por um dos algoritmos dos labs
+    def get_top_rated_players(self, players_ht):
+        # Create a list of tuples containing player_id, user_rating, global_average, and count of ratings
+        top_rated_players = [(avaliacao.player_id, avaliacao.nota, players_ht.get(avaliacao.player_id).media_global)
+                             for avaliacao in self.avaliacoes]
+
+        # Sort the list in descending order by user_rating and then by global_average
+        top_rated_players.sort(key=lambda x: (x[1], x[2]), reverse=True)
+
+        # Return the top 20 players
+        return str(top_rated_players[:20])
 
 
 class HashTable:
@@ -38,25 +54,17 @@ class HashTable:
     def __str__(self):
         output = ""
 
-        for i, lista_jogadores in enumerate(self.table):
+        for i, lista in enumerate(self.table):
             output += f"{i}: "
 
-            if lista_jogadores:
-                output += ", ".join(
-                    [
-                        f'({jogador.id}, {jogador.nome_curto}, {jogador.nome}, {jogador.posicoes}, {jogador.nacionalidade}, {jogador.clube}, {jogador.liga}, {jogador.soma_notas}, {jogador.num_avaliacoes}, {jogador.media_global})'
-                        # Caso seja um jogador, printa o de cima
-                        if isinstance(jogador, Jogador)
-                        # Senão, printa esse que é o usuário
-                        else f'({jogador.id}, {jogador.lista_tuplas})'
-                        for jogador in lista_jogadores])
+            if lista:
+                output += ", ".join([str(object) for object in lista])
 
             output += "\n"
 
         return output
 
     def _hash(self, id: str) -> int:
-
         # lista de números primos com o 1
         numeros = [1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
         resultado = 1
@@ -72,52 +80,73 @@ class HashTable:
         new_table = [[] for _ in range(self.size)]
 
         for bucket in self.table:
-            for jogador in bucket:
-                hash_index = self._hash(jogador.id[0])
-                new_table[hash_index].append(jogador)
+            for _ in bucket:
+                index = self._hash(_.id[0])
+                new_table[index].append(_)
 
         self.table = new_table
+        del new_table
 
-    def insert(self, Jogador_OU_Usuario):
-        hash_index = self._hash(Jogador_OU_Usuario.id)
-        self.table[hash_index].append(Jogador_OU_Usuario)
+    def insert(self, object: Jogador | Usuario):
+        index = self._hash(object.id)
+        self.table[index].append(object)
 
         # Se a taxa de ocupação dessa lista encadeada é maior que 20% do tamanho da tabela hash
-        if len(self.table[hash_index]) / self.size > 0.2:
+        if len(self.table[index]) / self.size > 0.2:
             self._resize()  # Redimensiona a tabela hash
 
-    def update_user(self, user_id, sofifa_id, rating):
-        hash_index = self._hash(user_id)
-        for usuario in self.table[hash_index]:
-            if usuario.id == user_id:
-                usuario.lista_tuplas.append((sofifa_id, rating))
-                return
-        # Se não achar o usuário, insere ele na tabela hash de usuários
-        self.insert(Usuario(user_id, (sofifa_id, rating)))
-
     def get(self, id):
-        cmps = 0
-        hash_index = self._hash(id)
+        index = self._hash(id)
 
-        for jogador in self.table[hash_index]:
-            cmps += 1
-            if jogador.id == id:
-                # print("Jogador encontrado.")
-                return f"{id}", f"{jogador.nome}", cmps
+        for object in self.table[index]:
+            if object.id == id:
+                return object
 
-        # print("Jogador não encontrado.")
-        return f"{id}", "NAO ENCONTRADO", cmps
+        raise ValueError(f'{id} NAO ENCONTRADO')
 
-    def remove(self, id):  # N vai precisar pro trabalho, porém dá pra usar na interface pra tirar alguém da tabela
-        hash_index = self._hash(id)
+    def update_user(self, user_id, rating: Avaliacao):
+        index = self._hash(user_id)
 
-        for i, jogador in enumerate(self.table[hash_index]):
-            if jogador.id == id:
-                self.table[hash_index].pop(i)
-                print("Jogador removido")
+        for usuario in self.table[index]:
+            if usuario.id == user_id:
+                usuario.avaliacoes.append(rating)
                 return
 
-        print("Jogador não encontrado")
+        # Se não achar o usuário, insere ele na tabela hash de usuários
+        novo_usuario = Usuario(user_id)
+        novo_usuario.avaliacoes.append(rating)
+        self.insert(novo_usuario)
+
+    def update_global_ratings(self):
+        start = time()
+
+        for lista in self.table:
+            for jogador in lista:
+                if jogador.num_avaliacoes != 0:
+                    jogador.media_global = jogador.soma_notas / jogador.num_avaliacoes
+
+        end = time()
+        print(f'Tempo para atualizar as médias globais: {(end - start) * 1000:.4f} milisegundos')
+
+    def get_top_players_by_position(self, position, n):
+        top_players = [(jogador.id, jogador.media_global)
+                       for lista in self.table for jogador in lista
+                       if position in jogador.posicoes and jogador.num_avaliacoes >= 0]
+
+        top_players.sort(key=lambda x: x[1], reverse=True)
+
+        return top_players[:n]
+
+    def get_players_info(self):
+        with open('../data/players.csv', 'r') as file:
+            reader = csv.reader(file)
+            next(reader)  # Pula o cabeçalho
+
+            for row in reader:
+                self.insert(Jogador(id=row[0], nome_curto=row[1], nome=row[2], posicoes=row[3],
+                                    nacionalidade=row[4], clube=row[5], liga=row[6]))
+
+    # ------------------------------------ Extras ------------------------------------ #
 
     # Vamo mostrar essas informações na interface pra ganhar uns pontinho extra
     def _average_list_size(self):
@@ -133,28 +162,20 @@ class HashTable:
 
         return media
 
-    def fill(self, file_path):
-        with open(file_path, 'r') as file:
-            reader = csv.reader(file)
-            next(reader)  # Pula o cabeçalho
+    def remove(self, id):  # N vai precisar pro trabalho, porém dá pra usar na interface pra tirar alguém da tabela
+        index = self._hash(id)
 
-            for row in reader:
-                id = row[0]
-                nome_curto = row[1]
-                nome = row[2]
-                posicoes = row[3]
-                nacionalidade = row[4]
-                clube = row[5]
-                liga = row[6]
-                self.insert(Jogador(id, nome_curto, nome, posicoes,
-                                    nacionalidade, clube, liga, 0, 0, 0))
+        for i, jogador in enumerate(self.table[index]):
+            if jogador.id == id:
+                self.table[index].pop(i)
+                print("Jogador removido")
+                return
+
+        print("Jogador não encontrado")
 
     def cons_stats(self):
-
         start = time()
-
-        self.fill('../data/players.csv')
-
+        self.get_players_info()
         end = time()
 
         # calcula a média do tamanho das listas não vazias
@@ -177,6 +198,7 @@ class HashTable:
                        f'Tamanho maximo de lista: {tamanho_max:.0f} elementos\n'
                        f'Tamanho medio de lista: {media:.1f} elementos\n\n')
 
+    # se for usar, tem que mudar o retorno da "get"
     def queries_stats(self):  # acho que não precisa disso pro trabalho
         with open(f'../data/consultas.csv', 'r') as file:
             reader = list(csv.reader(file))
@@ -200,73 +222,73 @@ class HashTable:
             for info_consulta in consultas:
                 file.write(f'{info_consulta}\n')
 
-    def minirating(self):
-        with open('../data/minirating.csv', 'r') as file:
-            reader = csv.reader(file)
-            next(reader)
+    # -------------------------------------------------------------------------------- #
 
-            # Faz uma tabela hash pra usuários com tamanho inicial de 10000
-            hash_table_usuarios = HashTable(10000)
 
-            for row in reader:
-                # Atualiza a tabela hash de usuários com as avaliações do arquivo minirating.csv
-                hash_table_usuarios.update_user(row[0], row[1], row[2])
+def get_minirating_info(players_ht, users_ht):
+    with open('../data/minirating.csv', 'r') as file:
+        reader = csv.reader(file)
+        next(reader)
 
-                # Acha o index do jogador do id atual
-                hash_index = self._hash(row[1])
+        for row in reader:
+            users_ht.update_user(row[0], Avaliacao(player_id=row[1], nota=row[2]))  # A coluna 0 é o id do usuário
 
-                # Percorre a lista de jogadores do id atual
-                for jogador in self.table[hash_index]:
-                    if jogador.id == row[1]:
-                        # Quando achar o jogador, atualiza a soma das notas e o número de avaliações
-                        jogador.soma_notas += float(row[2])
-                        jogador.num_avaliacoes += 1
+            index = players_ht._hash(row[1])  # Índice na tabela do jogador do id atual
 
-            # Atualiza a média global de todos os jogadores da tabela hash
-            for lista_jogadores in self.table:
-                for jogador in lista_jogadores:
-                    if jogador.num_avaliacoes != 0:
-                        jogador.media_global = jogador.soma_notas / jogador.num_avaliacoes
+            for jogador in players_ht.table[index]:
+                if jogador.id == row[1]:
+                    jogador.soma_notas += float(row[2])
+                    jogador.num_avaliacoes += 1
 
-    # Procura o Messi na tabela hash e printa suas informações pra verificar a media global do enunciado !
-            for jogador in self.table[self._hash("158023")]:
-                if jogador.id == "158023":
-                    print(jogador, end='\n\n')
-                    break
+def find_user_with_most_reviews(users_ht):
+    max_reviews = 0
+    user_with_most_reviews = None
 
-        return hash_table_usuarios
+    # Percorre todas as listas na tabela hash
+    for user_list in users_ht.table:
+        # Percorre todos os usuários em cada lista
+        for user in user_list:
+            # Se o usuário atual tem mais avaliações do que o máximo atual
+            if len(user.avaliacoes) > max_reviews:
+                # Atualiza o máximo e o usuário com mais avaliações
+                max_reviews = len(user.avaliacoes)
+                user_with_most_reviews = user
+
+    return user_with_most_reviews
 
 
 def main():
-    tamanho = 10000
-    hash_table = HashTable(tamanho)
+    players_ht = HashTable(TAMANHO_TABELA)
+    users_ht = HashTable(TAMANHO_TABELA)
 
     start = time()
-    hash_table.fill('../data/players.csv')
+    players_ht.get_players_info()
+    get_minirating_info(players_ht, users_ht)
+    players_ht.update_global_ratings()
     end = time()
 
-    print(
-        f'Tempo de construção da tabela: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos')
+    print(f'Tempo de construção das tabelas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos')
 
-    # Atualiza a tabela hash com a média global e retorna uma tabela hash de usuários e suas avaliações
-    hash_table_avaliacoes = hash_table.minirating()
+    # Ex: Procurando o Messi
+    #print(str(players_ht.get("158023")))
 
-    # Escreve no arquivo a tabela hash com a média global atualizada
-    with open('../output/hash_table.txt', 'w') as file:
-        file.write(str(hash_table))
 
-    print(hash_table_avaliacoes)
+    # pras pesquisas, ainda temos que decidir quais algoritmos de ordenação usar
 
-    # hash_table.remove('(id de alguém)') ## testar
+    # Pesquisa 2: jogadores revisados por usuários
+    print(users_ht.get(ID).get_top_rated_players(players_ht))
+
+    # Pesquisa 3: melhores jogadores de uma determinada posição
+    print(players_ht.get_top_players_by_position("ST", 10))
+
+
+    # Salvando os tabelas
+    with open('../output/players_ht.txt', 'w') as file:
+        file.write(str(players_ht))
+
+    with open('../output/users_ht.txt', 'w') as file:
+        file.write(str(users_ht))
 
 
 if __name__ == '__main__':
     main()
-
-# anotações:
-    # def add_tupla(self, sofifa_id, rating):
-    #   self.lista_tuplas.append((sofifa_id, rating))
-    # ex. dentro da classe Usuario:
-    # usuario = Usuario(341322)  # Cria um novo Usuario # ignora isso, talvez eu use
-    # usuario.add_tupla(123123, 4.5)  # Adiciona uma nova tupla à lista
-    # usuario.add_tupla(456456, 5.0)  # Adiciona outra nova tupla à lista
