@@ -6,9 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-# Constantes
-ID = '130642' # id do usuário com mais avaliações
-TAMANHO_TABELA = 7993
+import os
 
 Avaliacao = namedtuple('Avaliacao', ['player_id', 'nota'])
 
@@ -58,7 +56,7 @@ class Application(tk.Frame):
 
     def set_widgets(self):
 
-        with open('../data/players.csv', 'r') as file:
+        with open('data/players.csv', 'r') as file:
             reader = csv.reader(file)
             row = next(reader)
 
@@ -192,8 +190,8 @@ class HashTable:
         return top_players[:n]
 
     def get_players_info(self):
-          
-        with open('../data/players.csv', 'r') as file:
+
+        with open('data/players.csv', 'r') as file:
             reader = csv.reader(file)
             next(reader)  # Pula o cabeçalho
 
@@ -246,7 +244,7 @@ class HashTable:
             if lista:
                 posicoes_ocupadas += 1
 
-        with open(f'experimento.txt', 'w') as file:
+        with open(f'output/experimento.txt', 'w') as file:
             file.write(f'Parte 1: ESTATISTICAS DA TABELA HASH\n'
                        f'Tempo de construcao da tabela: {end - start:.5f} segundos ou {(end - start) * 1000:.5f} milisegundos\n'
                        f'Taxa de ocupacao: {(posicoes_ocupadas / self.size) * 100:.2f}%\n'
@@ -255,7 +253,7 @@ class HashTable:
 
     # se for usar, tem que mudar o retorno da "get"
     def queries_stats(self):  # acho que não precisa disso pro trabalho
-        with open(f'../data/consultas.csv', 'r') as file:
+        with open(f'data/consultas.csv', 'r') as file:
             reader = list(csv.reader(file))
 
             consultas = [None] * len(reader)
@@ -271,7 +269,7 @@ class HashTable:
 
             end = time()
 
-        with open(f'experimento.txt', 'a') as file:
+        with open(f'output/experimento.txt', 'a') as file:
             file.write(f'Parte 2: ESTATISTICAS DA CONSULTA\n'
                        f'TEMPO PARA REALIZACAO DE TODAS CONSULTAS: {end - start:.5f} milisegundos\n')
             for info_consulta in consultas:
@@ -280,7 +278,7 @@ class HashTable:
     # -------------------------------------------------------------------------------- #
 
 def get_minirating_info(players_ht, users_ht):
-    with open('../data/minirating.csv', 'r') as file:
+    with open('data/minirating.csv', 'r') as file:
         reader = csv.reader(file)
         next(reader)
 
@@ -310,49 +308,3 @@ def find_user_with_most_reviews(users_ht):
 
     return user_with_most_reviews
 
-
-def main():
-    players_ht = HashTable(TAMANHO_TABELA)
-    users_ht = HashTable(TAMANHO_TABELA)
-
-    start = time()
-    players_ht.get_players_info()
-    get_minirating_info(players_ht, users_ht)
-    players_ht.update_global_ratings()
-    end = time()
-
-    print(f'Tempo de construção das tabelas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos')
-
-    # Ex: Procurando o Messi
-    #print(str(players_ht.get("158023")))
-
-    # pras pesquisas, ainda temos que decidir quais algoritmos de ordenação usar
-
-    # Pesquisa 2: jogadores revisados por usuários
-    print(users_ht.get(ID).get_top_rated_players(players_ht))
-
-    # Pesquisa 3: melhores jogadores de uma determinada posição
-    print(players_ht.get_top_players_by_position("ST", 10))
-
-
-    # Salvando os tabelas
-    with open('../output/players_ht.txt', 'w') as file:
-        file.write(str(players_ht))
-
-    with open('../output/users_ht.txt', 'w') as file:
-        file.write(str(users_ht))
-
-
-
-
-    master = tk.Tk()
-    master.title("Trabalho Final CPD - Thiago Vito e Maximus Borges")  # Muda o nome da janela
-    screen_width = master.winfo_screenwidth() # Largura da tela
-    master.geometry(f"{screen_width - 50}x310") # Tamanho da janela
-    #master.configure(bg='white')  # Define a cor de fundo da janela para branco
-
-    app = Application(master)
-    app.mainloop()
-
-if __name__ == '__main__':
-    main()
