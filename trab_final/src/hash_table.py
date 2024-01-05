@@ -2,6 +2,10 @@ import csv
 from time import time
 from collections import namedtuple
 
+import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
+
 # Constantes
 ID = '130642' # id do usuário com mais avaliações
 TAMANHO_TABELA = 7993
@@ -45,6 +49,68 @@ class Usuario:
         # Return the top 20 players
         return str(top_rated_players[:20])
 
+class Application(tk.Frame):
+
+    def __init__(self, master=None):
+        tk.Frame.__init__(self, master)
+        self.grid()
+        self.set_widgets()
+
+    def set_widgets(self):
+        
+        button=tk.Button(self.master, text="Print Oi", command=print_oi)
+        button.place(x=50, y=250)
+
+        button1 = tk.Button(self.master, text="Confirmar", command=confirm)
+        button1.place(x=150, y=250)
+
+        # Inicia o Treeview com as seguintes colunas:
+        self.dataCols = ('country', 'capital', 'currency', 'teste', 'mais colunas', 'vamo', 'irra')
+        self.tree = ttk.Treeview(columns=self.dataCols, show='headings')
+        self.tree.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
+
+        
+        # Barra de rolagem
+        ysb = ttk.Scrollbar(orient=tk.VERTICAL, command=self.tree.yview)
+        self.tree['yscroll'] = ysb.set
+        ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
+
+        # Define o textos do cabeçalho (nome em maiúsculas)
+        for c in self.dataCols:
+            self.tree.heading(c, text=c.title())
+
+        # Dados:
+        self.data = [
+            ("Argentina",      "Buenos Aires",     "ARS", "teste", "yei", "mais uma"),
+            ("Australia",      "Canberra",         "AUD", "hummmmmmmmmmmmmmmmmmmmmmmmmmmm"),
+            ("Brazil",         "Brazilia",         "BRL"),
+            ("Canada",         "Ottawa",           "CAD"),
+            ("China",          "Beijing",          "CNY"),
+            ("France",         "Paris",            "EUR"),
+            ("Germany",        "Berlin",           "EUR"),
+            ("India",          "New Delhi",        "INR"),
+            ("Italy",          "Rome",             "EUR"),
+            ("Japan",          "Tokyo",            "JPY"),
+            ("Mexico",         "Mexico City",      "MXN"),
+            ("Russia",         "Moscow",           "RUB"),
+            ("South Africa",   "Pretoria",         "ZAR"),
+            ("United Kingdom", "London",           "GBP"),
+            ("United States",  "Washington, D.C.", "USD"),
+        ]
+
+        # Insere cada item dos dados
+        for item in self.data:
+            self.tree.insert('', 'end', values=item)
+
+def print_oi():
+    print("Oi")
+
+def confirm():
+    response = messagebox.askyesno("Confirmação", "Você tem certeza?")
+    if response:
+        print("Você clicou em Sim")
+    else:
+        print("Você clicou em Não")
 
 class HashTable:
     def __init__(self, size):
@@ -138,6 +204,13 @@ class HashTable:
         return top_players[:n]
 
     def get_players_info(self):
+
+        # Lista todos os arquivos e diretórios no diretório atual
+        for nome in os.listdir('.'):
+            # Se for um diretório, imprime o nome
+            if os.path.isdir(nome):
+                print(nome)
+                
         with open('../data/players.csv', 'r') as file:
             reader = csv.reader(file)
             next(reader)  # Pula o cabeçalho
@@ -224,7 +297,6 @@ class HashTable:
 
     # -------------------------------------------------------------------------------- #
 
-
 def get_minirating_info(players_ht, users_ht):
     with open('../data/minirating.csv', 'r') as file:
         reader = csv.reader(file)
@@ -272,7 +344,6 @@ def main():
     # Ex: Procurando o Messi
     #print(str(players_ht.get("158023")))
 
-
     # pras pesquisas, ainda temos que decidir quais algoritmos de ordenação usar
 
     # Pesquisa 2: jogadores revisados por usuários
@@ -289,6 +360,17 @@ def main():
     with open('../output/users_ht.txt', 'w') as file:
         file.write(str(users_ht))
 
+
+
+
+    master = tk.Tk()
+    master.title("Trabalho Final CPD - Thiago Vito e Maximus Borges")  # Muda o nome da janela
+    screen_width = master.winfo_screenwidth() # Largura da tela
+    master.geometry(f"{screen_width - 50}x310") # Tamanho da janela
+    #master.configure(bg='white')  # Define a cor de fundo da janela para branco
+
+    app = Application(master)
+    app.mainloop()
 
 if __name__ == '__main__':
     main()
