@@ -57,50 +57,38 @@ class Application(tk.Frame):
         self.set_widgets()
 
     def set_widgets(self):
-        
-        button=tk.Button(self.master, text="Print Oi", command=print_oi)
-        button.place(x=50, y=250)
 
-        button1 = tk.Button(self.master, text="Confirmar", command=confirm)
-        button1.place(x=150, y=250)
+        with open('../data/players.csv', 'r') as file:
+            reader = csv.reader(file)
+            row = next(reader)
 
-        # Inicia o Treeview com as seguintes colunas:
-        self.dataCols = ('country', 'capital', 'currency', 'teste', 'mais colunas', 'vamo', 'irra')
-        self.tree = ttk.Treeview(columns=self.dataCols, show='headings')
-        self.tree.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
+            button=tk.Button(self.master, text="Print Oi", command=print_oi, height=2, width=10)
+            button.place(x=50, y=250)
 
-        
-        # Barra de rolagem
-        ysb = ttk.Scrollbar(orient=tk.VERTICAL, command=self.tree.yview)
-        self.tree['yscroll'] = ysb.set
-        ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
+            button1 = tk.Button(self.master, text="Confirmar", command=confirm)
+            button1.place(x=150, y=250)
 
-        # Define o textos do cabeçalho (nome em maiúsculas)
-        for c in self.dataCols:
-            self.tree.heading(c, text=c.title())
+            # Inicia o Treeview com as seguintes colunas:
+            self.dataCols = (row[0], row[1], row[2], row[3], row[4], row[5], row[6])
+            self.tree = ttk.Treeview(columns=self.dataCols, show='headings')
+            self.tree.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
 
-        # Dados:
-        self.data = [
-            ("Argentina",      "Buenos Aires",     "ARS", "teste", "yei", "mais uma"),
-            ("Australia",      "Canberra",         "AUD", "hummmmmmmmmmmmmmmmmmmmmmmmmmmm"),
-            ("Brazil",         "Brazilia",         "BRL"),
-            ("Canada",         "Ottawa",           "CAD"),
-            ("China",          "Beijing",          "CNY"),
-            ("France",         "Paris",            "EUR"),
-            ("Germany",        "Berlin",           "EUR"),
-            ("India",          "New Delhi",        "INR"),
-            ("Italy",          "Rome",             "EUR"),
-            ("Japan",          "Tokyo",            "JPY"),
-            ("Mexico",         "Mexico City",      "MXN"),
-            ("Russia",         "Moscow",           "RUB"),
-            ("South Africa",   "Pretoria",         "ZAR"),
-            ("United Kingdom", "London",           "GBP"),
-            ("United States",  "Washington, D.C.", "USD"),
-        ]
+            # Barra de rolagem
+            ysb = ttk.Scrollbar(orient=tk.VERTICAL, command=self.tree.yview)
+            self.tree['yscroll'] = ysb.set
+            ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
 
-        # Insere cada item dos dados
-        for item in self.data:
-            self.tree.insert('', 'end', values=item)
+            # Define o textos do cabeçalho (nome em maiúsculas)
+            for c in self.dataCols:
+                self.tree.heading(c, text=c.title())
+
+            self.data = []
+            for row in reader:
+                self.data.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
+
+            # Insere cada item dos dados
+            for item in self.data:
+                self.tree.insert('', 'end', values=item)
 
 def print_oi():
     print("Oi")
@@ -204,13 +192,7 @@ class HashTable:
         return top_players[:n]
 
     def get_players_info(self):
-
-        # Lista todos os arquivos e diretórios no diretório atual
-        for nome in os.listdir('.'):
-            # Se for um diretório, imprime o nome
-            if os.path.isdir(nome):
-                print(nome)
-                
+          
         with open('../data/players.csv', 'r') as file:
             reader = csv.reader(file)
             next(reader)  # Pula o cabeçalho
