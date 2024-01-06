@@ -6,10 +6,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-import os
-
 Avaliacao = namedtuple('Avaliacao', ['player_id', 'nota'])
-
 
 class Jogador:
     def __init__(self, id, nome_curto, nome, posicoes, nacionalidade, clube, liga):
@@ -38,8 +35,8 @@ class Usuario:
     # temos que substituir o ".sort" por um dos algoritmos dos labs
     def get_top_rated_players(self, players_ht):
         # Create a list of tuples containing player_id, user_rating, global_average, and count of ratings
-        top_rated_players = [(avaliacao.player_id, avaliacao.nota, players_ht.get(avaliacao.player_id).media_global)
-                             for avaliacao in self.avaliacoes]
+        for avaliacao in self.avaliacoes:
+            top_rated_players = [(avaliacao.player_id, avaliacao.nota, players_ht.get(avaliacao.player_id).media_global)]
 
         # Sort the list in descending order by user_rating and then by global_average
         top_rated_players.sort(key=lambda x: (x[1], x[2]), reverse=True)
@@ -278,7 +275,7 @@ class HashTable:
     # -------------------------------------------------------------------------------- #
 
 def get_minirating_info(players_ht, users_ht):
-    with open('data/minirating.csv', 'r') as file:
+    with open('data/minirating_1kk.csv', 'r') as file:
         reader = csv.reader(file)
         next(reader)
 

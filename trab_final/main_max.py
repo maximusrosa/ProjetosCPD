@@ -40,14 +40,14 @@ def main():
     with open('output/players_ht.txt', 'w') as file:
         file.write(str(players_ht))
 
-    with open('output/users_ht.txt', 'w') as file:
-        file.write(str(users_ht))
+    #with open('output/users_ht.txt', 'w') as file:
+    #    file.write(str(users_ht))
 
 
     master = tk.Tk()
     master.title("Trabalho Final CPD - Thiago Vito e Maximus Borges")  # Muda o nome da janela
     screen_width = master.winfo_screenwidth() # Largura da tela
-    master.geometry(f"{screen_width - 50}x310") # Tamanho da janela
+    master.geometry(f"{screen_width - 100}x310") # Tamanho da janela
     #master.configure(bg='white')  # Define a cor de fundo da janela para branco
 
     app = Application(master)
