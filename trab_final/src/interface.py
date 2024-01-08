@@ -41,20 +41,16 @@ class Application(tk.Frame):
                 row = next(reader)
 
                 # Inicia o Treeview com as seguintes colunas:
-                self.dataCols = (row[0], row[1], row[2],
-                                 row[3], row[4], row[5], row[6])
-                self.tree = ttk.Treeview(
-                    columns=self.dataCols, show='headings')
-                self.tree.grid(row=0, column=0, sticky=tk.N +
-                               tk.S + tk.W + tk.E)
+                self.dataCols = (row[0], row[1], row[2], row[3], row[4], row[5], row[6])
+                self.tree = ttk.Treeview(columns=self.dataCols, show='headings')
+                self.tree.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
 
                 # Define o textos do cabeçalho (nome em maiúsculas)
                 for coluna in self.dataCols:
                     self.tree.heading(coluna, text=coluna.title())
 
                 for row in reader:
-                    self.data.append(
-                        (row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
+                    self.data.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
 
                 for item in self.data:
                     self.tree.insert('', 'end', values=item)
@@ -63,8 +59,7 @@ class Application(tk.Frame):
 
     def set_widgets(self):
 
-        funcao = tk.Button(self.master, text="Função",
-                           command=lambda: self.comando())
+        funcao = tk.Button(self.master, text="Função", command=lambda: self.comando())
         funcao.place(x=150, y=250)
 
         # Labels
@@ -75,19 +70,16 @@ class Application(tk.Frame):
         variavel = tk.Entry(width=35)  # Digita o nome do jogador aqui
         variavel.grid(row=4, column=0, columnspan=2)
         variavel.focus()  # Deixa o cursor na entrada
-        add_button = tk.Button(text="Aperte esse botão",
-                               width=36, command=lambda: self.faz_algo(variavel))
+        add_button = tk.Button(text="Aperte esse botão", width=36, command=lambda: self.faz_algo(variavel))
         add_button.grid(row=5, column=0, columnspan=2)
 
     def limpa_tabela(self):
-        response = messagebox.askyesno(
-            "Confirmação", "Isso irá limpar a tabela. Você tem certeza?")
+        response = messagebox.askyesno("Confirmação", "Isso irá limpar a tabela. Você tem certeza?")
         if response:  # Se o usuário confirmar, limpa a tabela
             for i in self.tree.get_children():
                 self.tree.delete(i)
 
     def faz_algo(self, variavel):
-        response = messagebox.askyesno(
-            "Confirmação", "Isso irá fazer algo. Você tem certeza?")
+        response = messagebox.askyesno("Confirmação", "Isso irá fazer algo. Você tem certeza?")
         if response:  # Se o usuário confirmar, faz algo
             print(variavel.get())
