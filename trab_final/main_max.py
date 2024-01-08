@@ -1,10 +1,8 @@
-from src.hash_table import HashTable, get_minirating_info, Application
+from src.hash_table import HashTable, get_minirating_info
+from src.interface import Application, cria_interface
 
 from time import time
 from collections import namedtuple
-
-import tkinter as tk
-
 
 # Constantes
 ID = '130642' # id do usuário com mais avaliações
@@ -43,15 +41,8 @@ def main():
     #with open('output/users_ht.txt', 'w') as file:
     #    file.write(str(users_ht))
 
-
-    master = tk.Tk()
-    master.title("Trabalho Final CPD - Thiago Vito e Maximus Borges")  # Muda o nome da janela
-    screen_width = master.winfo_screenwidth() # Largura da tela
-    master.geometry(f"{screen_width - 100}x310") # Tamanho da janela
-    #master.configure(bg='white')  # Define a cor de fundo da janela para branco
-
+    master = cria_interface()
     app = Application(master)
     app.mainloop()
-
 
 main()
