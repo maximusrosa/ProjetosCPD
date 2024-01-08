@@ -18,7 +18,7 @@ def cria_interface():
 
     # Barra de rolagem
     ysb = ttk.Scrollbar(orient=tk.VERTICAL, command=master.tree.yview)
-    master.tree['yscroll'] = ysb.set
+    master.tree.configure(yscrollcommand=ysb.set)
     ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
 
     return master
@@ -33,8 +33,7 @@ class Application(tk.Frame):
         self.set_widgets()
 
     def comando(self):
-        response = messagebox.askyesno(
-            "Confirmação", "Isso irá te mostrar os dados do arquivo {players.csv}. Você tem certeza?")
+        response = messagebox.askyesno("Confirmação", "Isso irá te mostrar os dados do arquivo {players.csv}. Você tem certeza?")
         if response:
             with open('data/players.csv', 'r') as file:
                 reader = csv.reader(file)
@@ -44,6 +43,11 @@ class Application(tk.Frame):
                 self.dataCols = (row[0], row[1], row[2], row[3], row[4], row[5], row[6])
                 self.tree = ttk.Treeview(columns=self.dataCols, show='headings')
                 self.tree.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
+
+                # Barra de rolagem
+                ysb = ttk.Scrollbar(orient=tk.VERTICAL, command=self.tree.yview)
+                self.tree.configure(yscrollcommand=ysb.set)
+                ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
 
                 # Define o textos do cabeçalho (nome em maiúsculas)
                 for coluna in self.dataCols:
@@ -58,7 +62,7 @@ class Application(tk.Frame):
             return
 
     def set_widgets(self):
-
+        
         funcao = tk.Button(self.master, text="Função", command=lambda: self.comando())
         funcao.place(x=150, y=250)
 
