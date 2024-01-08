@@ -1,42 +1,38 @@
-from src.hash_table import HashTable, get_minirating_info
+from src.hash_table import FIFA_Database
 from src.interface import Application, cria_interface
 
 from time import time
 from collections import namedtuple
 
 # Constantes
-ID = '130642' # id do usuário com mais avaliações
-TAMANHO_TABELA = 7993
-
-Avaliacao = namedtuple('Avaliacao', ['player_id', 'nota'])
+ID_USER_MAX = '130642' # id do usuário com mais avaliações
+FILENAME = 'data/players.csv'
 
 def main():
-    players_ht = HashTable(TAMANHO_TABELA)
-    users_ht = HashTable(TAMANHO_TABELA)
+    fifa_db = FIFA_Database()
 
     start = time()
-    players_ht.get_players_info()
-    get_minirating_info(players_ht, users_ht)
-    players_ht.update_global_ratings()
+    fifa_db.get_players_info(FILENAME)
+    fifa_db.get_minirating_info(FILENAME)
+    fifa_db.update_global_ratings()
     end = time()
 
     print(f'Tempo de construção das tabelas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos')
 
-    # Ex: Procurando o Messi
-    #print(str(players_ht.get("158023")))
 
-    # pras pesquisas, ainda temos que decidir quais algoritmos de ordenação usar
+    # Ex: Procurando o Messi
+    print(str(fifa_db.players_HT.get("158023")))
 
     # Pesquisa 2: jogadores revisados por usuários
-    print(users_ht.get(ID).get_top_rated_players(players_ht))
+    print(fifa_db.top_by_user(ID_USER_MAX))
 
     # Pesquisa 3: melhores jogadores de uma determinada posição
-    print(players_ht.get_top_players_by_position("ST", 10))
+    print(fifa_db.top_by_position("ST", 6))
 
 
     # Salvando os tabelas
-    with open('output/players_ht.txt', 'w') as file:
-        file.write(str(players_ht))
+    #with open('output/players_ht.txt', 'w') as file:
+        #file.write(str(players_ht))
 
     #with open('output/users_ht.txt', 'w') as file:
     #    file.write(str(users_ht))

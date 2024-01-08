@@ -101,8 +101,8 @@ class FIFA_Database():
     def __str__(self):
         return str(self.players_HT) + '\n' + str(self.users_HT)
 
-    def get_players_info(self):
-        with open('../data/players.csv', 'r') as file:
+    def get_players_info(self, filename='../data/players.csv'):
+        with open(filename, 'r') as file:
             reader = csv.reader(file)
             next(reader)  # Pula o cabeçalho
 
@@ -110,8 +110,8 @@ class FIFA_Database():
                 self.players_HT.insert(Jogador(id=row[0], nome_curto=row[1], nome=row[2], posicoes=row[3],
                                                nacionalidade=row[4], clube=row[5], liga=row[6]))
 
-    def get_minirating_info(self):
-        with open('../data/minirating.csv', 'r') as file:
+    def get_minirating_info(self, filename='../data/minirating.csv'):
+        with open(filename, 'r') as file:
             reader = csv.reader(file)
             next(reader)
 
