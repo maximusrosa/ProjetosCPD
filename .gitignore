@@ -2,3 +2,4 @@
 lab_02/__pycache__/test_main_max.cpython-312-pytest-7.4.3.pyc
 *.json
 *.pyc
+.idea/csv-editor.xml

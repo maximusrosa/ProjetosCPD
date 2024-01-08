@@ -1,7 +1,7 @@
 import csv
-import gc
 from time import time
 from collections import namedtuple
+from typing import NamedTuple
 
 # Constantes
 ID_USER_MAX = '130642'  # id do usuário com mais avaliações
@@ -25,13 +25,12 @@ class Jogador:
         return f'({self.id}, {self.nome_curto}, {self.nome}, {self.posicoes}, {self.nacionalidade}, {self.clube}, {self.liga}, {self.media_global:.6f})'
 
 
-class Usuario:
-    def __init__(self, id):
-        self.id = id
-        self.avaliacoes = []
+class Usuario(NamedTuple):
+    id: str
+    avaliacoes: list[Avaliacao]
 
     def __str__(self):
-        return f'({self.id}, {self.avaliacoes})'
+        return f'(user_id: {self.id}, {self.avaliacoes})'
 
 
 class HashTable:
@@ -93,7 +92,7 @@ class HashTable:
         return None
 
 
-class FIFA_Database:
+class FIFA_Database(NamedTuple):
     def __init__(self):
         self.players_HT = HashTable(TAMANHO_TABELA)
         self.users_HT = HashTable(TAMANHO_TABELA)
@@ -122,10 +121,9 @@ class FIFA_Database:
 
                 user = self.users_HT.get(row[0])
                 if user is None:
-                    user = Usuario(row[0])
-                    self.users_HT.insert(user)
-
-                user.avaliacoes.append(Avaliacao(player_id=row[1], nota=row[2]))
+                    self.users_HT.insert(Usuario(id=row[0], avaliacoes=[Avaliacao(player_id=row[1], nota=row[2])]))
+                else:
+                    user.avaliacoes.append(Avaliacao(player_id=row[1], nota=row[2]))
 
                 # Atualização da Tabela de Jogadores
                 index = self.players_HT.hash(row[1])
@@ -203,7 +201,7 @@ def main():
     print(fifa_db.top_by_user(ID_USER_MAX))
 
     # Pesquisa 3: melhores jogadores de uma determinada posição
-    print(fifa_db.top_by_position("ST", 10))
+    print(fifa_db.top_by_position("ST", 6))
 
     # Salvando os tabelas
     with open('../output/players_ht.txt', 'w') as file:
@@ -211,10 +209,6 @@ def main():
 
     with open('../output/users_ht.txt', 'w') as file:
         file.write(str(fifa_db.users_HT))
-
-    del fifa_db
-    gc.collect()
-
 
 
 if __name__ == '__main__':

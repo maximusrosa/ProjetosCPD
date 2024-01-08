@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\trab_final\data\consultas.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\trab_final\data\minirating.csv">
           <value>
             <Attribute>
@@ -18,6 +25,13 @@
           </value>
         </entry>
         <entry key="\trab_final\data\players.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\trab_final\data\tags.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
