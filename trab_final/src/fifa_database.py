@@ -1,17 +1,21 @@
 from hash_table import HashTable, Jogador, Usuario, Tag
-import csv
-from time import time
 from trie_tree import Trie
+from time import time
+import csv
 
 # Constantes
-TAMANHO_TABELA = 7993
+NUM_JOGADORES = 18944
+NUM_USUARIOS = 9642  # pro minirating de 10k
+NUM_TAGS = 937
+
 ID_USER_MAX = '130642'  # id do usuário com mais avaliações
 
 class FIFA_Database:
     def __init__(self):
-        self.players_HT = HashTable(TAMANHO_TABELA)
-        self.users_HT = HashTable(TAMANHO_TABELA)
-        self.tags_HT = HashTable(TAMANHO_TABELA)
+        # O tamanho foi escolhido como o número primo mais próximo de floor(NUM_OBJETOS + (0.2 * NUM_OBJETOS))
+        self.players_HT = HashTable(22739)
+        self.users_HT = HashTable(11579)
+        self.tags_HT = HashTable(1129)
         #self.nomes_Trie = Trie()
 
     def __str__(self):
@@ -78,22 +82,6 @@ class FIFA_Database:
 
     # ----------------------------------------- Pesquisas ----------------------------------------- #
 
-    def find_user_with_most_reviews(self):
-        max_reviews = 0
-        user_with_most_reviews = None
-
-        # Percorre todas as listas na tabela hash
-        for user_list in self.users_HT.table:
-            # Percorre todos os usuários em cada lista
-            for user in user_list:
-                # Se o usuário atual tem mais avaliações do que o máximo atual
-                if len(user.avaliacoes) > max_reviews:
-                    # Atualiza o máximo e o usuário com mais avaliações
-                    max_reviews = len(user.avaliacoes)
-                    user_with_most_reviews = user
-
-        return user_with_most_reviews
-
     def top_by_user(self, user_id):
         user = self.users_HT.get(user_id)
 
@@ -117,6 +105,48 @@ class FIFA_Database:
 
         return top_players[:n]
 
+
+# ----------------------------------------- Funções auxiliares ----------------------------------------- #
+
+def find_user_with_most_reviews(hash_table):
+    max_reviews = 0
+    user_with_most_reviews = None
+
+    # Percorre todas as listas na tabela hash
+    for user_list in hash_table.table:
+        # Percorre todos os usuários em cada lista
+        for user in user_list:
+            # Se o usuário atual tem mais avaliações do que o máximo atual
+            if len(user.avaliacoes) > max_reviews:
+                # Atualiza o máximo e o usuário com mais avaliações
+                max_reviews = len(user.avaliacoes)
+                user_with_most_reviews = user
+
+    return user_with_most_reviews
+
+def count_unique_tags(filename='../data/tags.csv'):
+    unique_tags = set()
+
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip the header
+
+        for row in reader:
+            unique_tags.add(row[2])  # The tag is in the third column
+
+    return len(unique_tags)
+
+def count_unique_users(filename='../data/minirating.csv'):
+    unique_users = set()
+
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip the header
+
+        for row in reader:
+            unique_users.add(row[0])  # The user id is in the first column
+
+    return len(unique_users)
 
 # ----------------------------------------- Testes ----------------------------------------- #
 

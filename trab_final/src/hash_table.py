@@ -75,6 +75,7 @@ class HashTable:
         del new_table
 
     def insert(self, object: Jogador | Usuario | Tag):
+        # usar uma função de hash específica pra cada tipo de objeto aqui
         index = self.hash(object.id)
         self.table[index].append(object)
 
