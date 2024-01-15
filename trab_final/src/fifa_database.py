@@ -3,21 +3,18 @@ from trie_tree import Trie
 from time import time
 import csv
 from collections import defaultdict
+from math import floor
 
 # Constantes
 NUM_JOGADORES = 18944
 NUM_USUARIOS = 9642  # pro minirating de 10k
 NUM_TAGS = 937
 
-ID_USER_MAX = '130642'  # id do usuário com mais avaliações
-
-
 class FIFA_Database:
     def __init__(self):
-        # O tamanho foi escolhido como o número primo mais próximo de floor(NUM_OBJETOS + (0.2 * NUM_OBJETOS))
-        self.players_HT = JogadorHT(22739)
-        self.users_HT = UsuarioHT(11579)
-        self.tags_HT = TagHT(1129)
+        self.players_HT = JogadorHT(floor(NUM_JOGADORES/5))
+        self.users_HT = UsuarioHT(floor(NUM_USUARIOS/5))
+        self.tags_HT = TagHT(floor(NUM_TAGS/5))
         # self.names_Trie = Trie()
 
     def __str__(self):
@@ -96,7 +93,7 @@ class FIFA_Database:
         top_rated_players.sort(key=lambda x: (x[1], x[2]), reverse=True)
 
         # Esta pesquisa deve retornar a lista com no máximo 20 jogadores revisados pelo usuário
-        return str(top_rated_players[:20])
+        return top_rated_players[:20]
 
     def top_by_position(self, position, n):
         top_players = [(jogador.id, jogador.media_global)
@@ -177,7 +174,7 @@ def print_digit_position_frequency_in_player_ids(filename='../data/players.csv')
             print(f'  Digit {digit}: {frequency} times')
 
 
-# ----------------------------------------- Testes ----------------------------------------- #
+# --------------------------------------------------------------------------------------------------------- #
 
 def main():
     fifa_db = FIFA_Database()
@@ -185,30 +182,23 @@ def main():
     start = time()
     fifa_db.get_players_info()
     fifa_db.get_minirating_info("../data/minirating.csv")
-    #fifa_db.get_tags_info()
+    fifa_db.get_tags_info()
     fifa_db.update_global_ratings()
     end = time()
 
-    print(f'Tempo de construção das tabelas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos')
+    print(f'Tempo de construção das tabelas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos\n')
 
-    # Ex: Procurando o Messi
-    print(str(fifa_db.players_HT.get("158023")))
-
-    # Pesquisa 2: jogadores revisados por usuários
-    print(fifa_db.top_by_user(ID_USER_MAX))
-
-    # Pesquisa 3: melhores jogadores de uma determinada posição
-    print(fifa_db.top_by_position("ST", 6))
+    fifa_db.tags_HT.cons_stats()
 
     # Salvando os tabelas
-    with open('../output/players_ht.txt', 'w') as file:
-        file.write(str(fifa_db.players_HT))
+    #with open('../output/players_ht.txt', 'w') as file:
+        #file.write(str(fifa_db.players_HT))
 
-    with open('../output/users_ht.txt', 'w') as file:
-        file.write(str(fifa_db.users_HT))
+    #with open('../output/users_ht.txt', 'w') as file:
+        #file.write(str(fifa_db.users_HT))
 
     #with open('../output/tags_ht.txt', 'w') as file:
-    #    file.write(str(fifa_db.tags_HT))
+        #file.write(str(fifa_db.tags_HT))
 
 
 if __name__ == '__main__':

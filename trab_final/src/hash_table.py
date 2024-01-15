@@ -1,5 +1,6 @@
 from typing import NamedTuple
 
+
 class Jogador:
     def __init__(self, id, nome_curto, nome, posicoes, nacionalidade, clube, liga):
         self.id = id
@@ -15,6 +16,7 @@ class Jogador:
     def __str__(self):
         return f'({self.id}, {self.nome_curto}, {self.posicoes}, {self.nacionalidade}, {self.clube}, {self.liga}, {self.media_global:.6f})'
 
+
 class Usuario(NamedTuple):
     class Avaliacao(NamedTuple):
         player_id: str
@@ -29,12 +31,14 @@ class Usuario(NamedTuple):
     def __str__(self):
         return f'(user_id: {self.id}, ratings: {self.avaliacoes})'
 
+
 class Tag(NamedTuple):
     id: str  # Nome da tag
     ocorrencias: set[Jogador]  # ver com o sor se realmente podemos usar um conjunto aqui
 
     def __str__(self):
         return f'(tag: {self.id}, ocorrencias: {[jogador.nome_curto for jogador in self.ocorrencias]})'
+
 
 class HashTable:
     def __init__(self, size):
@@ -70,7 +74,6 @@ class HashTable:
         del new_table
 
     def insert(self, object: Jogador | Usuario | Tag):
-        # usar uma função de hash específica pra cada tipo de objeto aqui
         index = self.hash(object.id)
         self.table[index].append(object)
 
@@ -87,6 +90,41 @@ class HashTable:
 
         return None
 
+    # ----------------------------------------- ESTATÍSTICAS ----------------------------------------- #
+
+    def _average_list_size(self):
+        soma = 0
+        contador = 0
+
+        for lista in self.table:
+            if lista:  # se a lista não estiver vazia
+                soma += len(lista)
+                contador += 1
+
+        media = soma / contador if contador != 0 else 0
+
+        return media
+
+    def cons_stats(self):
+        # calcula a média do tamanho das listas não vazias
+        media = self._average_list_size()
+
+        # maior tamanho de lista
+        tamanho_max = max([len(lista) for lista in self.table])
+
+        # conta o número de posições do "array" com listas não vazias
+        posicoes_ocupadas = 0
+
+        for lista in self.table:
+            if lista:
+                posicoes_ocupadas += 1
+
+        print(f'ESTATISTICAS DA TABELA HASH\n'
+              f'Taxa de ocupacao: {(posicoes_ocupadas / self.size) * 100:.2f}%\n'
+              f'Tamanho maximo de lista: {tamanho_max:.0f} elementos\n'
+              f'Tamanho medio de lista: {media:.1f} elementos\n\n')
+
+
 class JogadorHT(HashTable):
     def hash(self, id: str) -> int:
         # Define a custom hash function for Jogador
@@ -94,6 +132,7 @@ class JogadorHT(HashTable):
         for char in id:
             hash_value = ((hash_value << 5) + hash_value) + ord(char)  # hash * 33 + c
         return hash_value % self.size
+
 
 class UsuarioHT(HashTable):
     def hash(self, id: str) -> int:
@@ -103,10 +142,28 @@ class UsuarioHT(HashTable):
             hash_value = ((hash_value << 7) + hash_value) + ord(char)  # hash * 33 + c
         return hash_value % self.size
 
+
 class TagHT(HashTable):
+    def __init__(self, size):
+        super().__init__(size)
+        self.hash_values = [0] * size
+
     def hash(self, id: str) -> int:
-        # Define a custom hash function for Tag
-        hash_value = 0
+        h = self.hash_values[self.hash_index(id)]
+        if h != 0:
+            return h
         for char in id:
-            hash_value = ((hash_value << 11) + hash_value) + ord(char)  # hash * 33 + c
-        return hash_value % self.size
+            h = ord(char) + (31 * h)
+        self.hash_values[self.hash_index(id)] = h % self.size
+        return h % self.size  # Ensure the hash value is within the range of valid indices
+
+    def hash_index(self, id: str) -> int:
+        return sum(ord(c) for c in id) % self.size
+
+# Versão 2:
+# class TagHT(HashTable):
+#    def hash(self, id: str) -> int:
+#        hash_value = 0
+#        for char in id:
+#            hash_value = ord(char) + (31 * hash_value)
+#        return hash_value % self.size
