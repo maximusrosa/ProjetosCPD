@@ -1,0 +1,69 @@
+Tabela de Frequência dos dígitos por posição nos ID's dos jogadores
+
+Position 1:
+  Digit 1: 2974 times
+  Digit 2: 15939 times
+  Digit 3: 3 times
+  Digit 4: 10 times
+  Digit 5: 17 times
+  Digit 9: 1 times
+
+Position 2:
+  Digit 0: 1728 times
+  Digit 1: 1705 times
+  Digit 2: 2309 times
+  Digit 3: 3168 times
+  Digit 4: 3199 times
+  Digit 5: 4155 times
+  Digit 6: 237 times
+  Digit 7: 427 times
+  Digit 8: 876 times
+  Digit 9: 1140 times
+
+Position 3:
+  Digit 0: 1732 times
+  Digit 1: 1847 times
+  Digit 2: 2100 times
+  Digit 3: 2095 times
+  Digit 4: 2073 times
+  Digit 5: 1979 times
+  Digit 6: 1894 times
+  Digit 7: 1855 times
+  Digit 8: 1983 times
+  Digit 9: 1385 times
+
+Position 4:
+  Digit 0: 1901 times
+  Digit 1: 1865 times
+  Digit 2: 1902 times
+  Digit 3: 1839 times
+  Digit 4: 1944 times
+  Digit 5: 1930 times
+  Digit 6: 1914 times
+  Digit 7: 1873 times
+  Digit 8: 1901 times
+  Digit 9: 1874 times
+
+Position 5:
+  Digit 0: 1854 times
+  Digit 1: 1845 times
+  Digit 2: 1839 times
+  Digit 3: 1883 times
+  Digit 4: 1918 times
+  Digit 5: 1901 times
+  Digit 6: 1869 times
+  Digit 7: 1927 times
+  Digit 8: 1943 times
+  Digit 9: 1958 times
+
+Position 6:
+  Digit 0: 1847 times
+  Digit 1: 1932 times
+  Digit 2: 1866 times
+  Digit 3: 1910 times
+  Digit 4: 1838 times
+  Digit 5: 1951 times
+  Digit 6: 1877 times
+  Digit 7: 1876 times
+  Digit 8: 1922 times
+  Digit 9: 1879 times

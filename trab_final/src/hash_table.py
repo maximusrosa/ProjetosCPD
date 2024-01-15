@@ -15,7 +15,6 @@ class Jogador:
     def __str__(self):
         return f'({self.id}, {self.nome_curto}, {self.posicoes}, {self.nacionalidade}, {self.clube}, {self.liga}, {self.media_global:.6f})'
 
-
 class Usuario(NamedTuple):
     class Avaliacao(NamedTuple):
         player_id: str
@@ -55,12 +54,8 @@ class HashTable:
 
         return output
 
-    def hash(self, id: str) -> int:
-        hash_value = 5381
-        for char in id:
-            hash_value = ((hash_value << 5) + hash_value) + ord(char)  # hash * 33 + c
-
-        return hash_value % self.size
+    def hash(self, id: str):
+        pass
 
     def _resize(self):
         self.size *= 2  # Dobra o tamanho da tabela hash
@@ -91,3 +86,27 @@ class HashTable:
                 return object
 
         return None
+
+class JogadorHT(HashTable):
+    def hash(self, id: str) -> int:
+        # Define a custom hash function for Jogador
+        hash_value = 0
+        for char in id:
+            hash_value = ((hash_value << 5) + hash_value) + ord(char)  # hash * 33 + c
+        return hash_value % self.size
+
+class UsuarioHT(HashTable):
+    def hash(self, id: str) -> int:
+        # Define a custom hash function for Usuario
+        hash_value = 0
+        for char in id:
+            hash_value = ((hash_value << 7) + hash_value) + ord(char)  # hash * 33 + c
+        return hash_value % self.size
+
+class TagHT(HashTable):
+    def hash(self, id: str) -> int:
+        # Define a custom hash function for Tag
+        hash_value = 0
+        for char in id:
+            hash_value = ((hash_value << 11) + hash_value) + ord(char)  # hash * 33 + c
+        return hash_value % self.size

@@ -1,7 +1,8 @@
-from hash_table import HashTable, Jogador, Usuario, Tag
+from hash_table import Jogador, Usuario, Tag, JogadorHT, UsuarioHT, TagHT
 from trie_tree import Trie
 from time import time
 import csv
+from collections import defaultdict
 
 # Constantes
 NUM_JOGADORES = 18944
@@ -10,16 +11,17 @@ NUM_TAGS = 937
 
 ID_USER_MAX = '130642'  # id do usuário com mais avaliações
 
+
 class FIFA_Database:
     def __init__(self):
         # O tamanho foi escolhido como o número primo mais próximo de floor(NUM_OBJETOS + (0.2 * NUM_OBJETOS))
-        self.players_HT = HashTable(22739)
-        self.users_HT = HashTable(11579)
-        self.tags_HT = HashTable(1129)
-        #self.nomes_Trie = Trie()
+        self.players_HT = JogadorHT(22739)
+        self.users_HT = UsuarioHT(11579)
+        self.tags_HT = TagHT(1129)
+        # self.names_Trie = Trie()
 
     def __str__(self):
-        return str(self.players_HT) + '\n' + str(self.users_HT)
+        return str(self.players_HT) + '\n' + str(self.users_HT) + '\n' + str(self.tags_HT)
 
     # ----------------------------------------- Pré-processamento ----------------------------------------- #
 
@@ -42,7 +44,8 @@ class FIFA_Database:
                 user = self.users_HT.get(row[0])
 
                 if user is None:
-                    self.users_HT.insert(Usuario(id=row[0], avaliacoes=[Usuario.Avaliacao(player_id=row[1], nota=float(row[2]))]))
+                    self.users_HT.insert(
+                        Usuario(id=row[0], avaliacoes=[Usuario.Avaliacao(player_id=row[1], nota=float(row[2]))]))
                 else:
                     user.avaliacoes.append(Usuario.Avaliacao(player_id=row[1], nota=float(row[2])))
 
@@ -67,7 +70,6 @@ class FIFA_Database:
                     self.tags_HT.insert(Tag(id=row[2], ocorrencias={self.players_HT.get(row[1])}))
                 else:
                     tag.ocorrencias.add(self.players_HT.get(row[1]))
-
 
     def update_global_ratings(self):
         start = time()
@@ -124,6 +126,7 @@ def find_user_with_most_reviews(hash_table):
 
     return user_with_most_reviews
 
+
 def count_unique_tags(filename='../data/tags.csv'):
     unique_tags = set()
 
@@ -135,6 +138,7 @@ def count_unique_tags(filename='../data/tags.csv'):
             unique_tags.add(row[2])  # The tag is in the third column
 
     return len(unique_tags)
+
 
 def count_unique_users(filename='../data/minirating.csv'):
     unique_users = set()
@@ -148,6 +152,31 @@ def count_unique_users(filename='../data/minirating.csv'):
 
     return len(unique_users)
 
+
+def print_digit_position_frequency_in_player_ids(filename='../data/players.csv'):
+    # Initialize a list of default dictionaries to store the frequency of each digit by position
+    digit_position_frequency = [defaultdict(int) for _ in range(6)]  # Assuming player id has at most 10 digits
+
+    # Open the file and read it line by line
+    with open(filename, 'r') as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip the header
+
+        # For each line, extract the player's id
+        for row in reader:
+            player_id = row[0]
+
+            # For each position in the player's id, increment its count in the corresponding frequency table
+            for i, digit in enumerate(player_id):
+                digit_position_frequency[i][digit] += 1
+
+    # Print the frequency tables
+    for i, digit_frequency in enumerate(digit_position_frequency):
+        print(f'Position {i + 1}:')
+        for digit, frequency in sorted(digit_frequency.items()):
+            print(f'  Digit {digit}: {frequency} times')
+
+
 # ----------------------------------------- Testes ----------------------------------------- #
 
 def main():
@@ -156,7 +185,7 @@ def main():
     start = time()
     fifa_db.get_players_info()
     fifa_db.get_minirating_info("../data/minirating.csv")
-    fifa_db.get_tags_info()
+    #fifa_db.get_tags_info()
     fifa_db.update_global_ratings()
     end = time()
 
@@ -178,8 +207,8 @@ def main():
     with open('../output/users_ht.txt', 'w') as file:
         file.write(str(fifa_db.users_HT))
 
-    with open('../output/tags_ht.txt', 'w') as file:
-        file.write(str(fifa_db.tags_HT))
+    #with open('../output/tags_ht.txt', 'w') as file:
+    #    file.write(str(fifa_db.tags_HT))
 
 
 if __name__ == '__main__':
