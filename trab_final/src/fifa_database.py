@@ -10,15 +10,17 @@ NUM_JOGADORES = 18944
 NUM_USUARIOS = 9642  # pro minirating de 10k
 NUM_TAGS = 937
 
+
 class FIFA_Database:
     def __init__(self):
-        self.players_HT = JogadorHT(floor(NUM_JOGADORES/5))
-        self.users_HT = UsuarioHT(floor(NUM_USUARIOS/5))
-        self.tags_HT = TagHT(floor(NUM_TAGS/5))
-        # self.names_Trie = Trie()
+        self.players_HT = JogadorHT(floor(NUM_JOGADORES / 5))
+        self.users_HT = UsuarioHT(floor(NUM_USUARIOS / 5))
+        self.tags_HT = TagHT(floor(NUM_TAGS / 5))
+        self.long_names_Trie = Trie()
 
     def __str__(self):
-        return str(self.players_HT) + '\n' + str(self.users_HT) + '\n' + str(self.tags_HT)
+        return str(self.players_HT) + '\n' + str(self.users_HT) + '\n' + str(self.tags_HT) + '\n' + str(
+            self.long_names_Trie)
 
     # ----------------------------------------- Pré-processamento ----------------------------------------- #
 
@@ -30,6 +32,7 @@ class FIFA_Database:
             for row in reader:
                 self.players_HT.insert(Jogador(id=row[0], nome_curto=row[1], nome=row[2], posicoes=row[3],
                                                nacionalidade=row[4], clube=row[5], liga=row[6]))
+                self.long_names_Trie.insert(row[2], row[0])
 
     def get_minirating_info(self, filename='../data/minirating.csv'):
         with open(filename, 'r') as file:
@@ -54,6 +57,8 @@ class FIFA_Database:
                         jogador.soma_notas += float(row[2])
                         jogador.num_avaliacoes += 1
 
+        self._update_global_ratings()
+
     def get_tags_info(self, filename='../data/tags.csv'):
         with open(filename, 'r') as file:
             reader = csv.reader(file)
@@ -64,22 +69,31 @@ class FIFA_Database:
                 tag = self.tags_HT.get(row[2])
 
                 if tag is None:
-                    self.tags_HT.insert(Tag(id=row[2], ocorrencias={self.players_HT.get(row[1])}))
+                    self.tags_HT.insert(Tag(id=row[2], ocorrencias={row[1]}))
                 else:
-                    tag.ocorrencias.add(self.players_HT.get(row[1]))
+                    tag.ocorrencias.add(row[1])
 
-    def update_global_ratings(self):
-        start = time()
+    def _update_global_ratings(self):
+        # start = time()
 
         for lista in self.players_HT.table:
             for jogador in lista:
                 if jogador.num_avaliacoes != 0:
                     jogador.media_global = jogador.soma_notas / jogador.num_avaliacoes
 
-        end = time()
-        print(f'Tempo para atualizar as médias globais: {(end - start) * 1000:.4f} milisegundos')
+        # end = time()
+        # print(f'Tempo para atualizar as médias globais: {(end - start) * 1000:.4f} milisegundos')
 
     # ----------------------------------------- Pesquisas ----------------------------------------- #
+
+    def players_by_prefix(self, prefix):
+        players = [self.players_HT.get(id)
+                   for id in self.long_names_Trie.starts_with(prefix)]
+
+        # Sort the list of players by their global average
+        players.sort(key=lambda x: x.media_global, reverse=True)
+
+        return players
 
     def top_by_user(self, user_id):
         user = self.users_HT.get(user_id)
@@ -95,7 +109,7 @@ class FIFA_Database:
         # Esta pesquisa deve retornar a lista com no máximo 20 jogadores revisados pelo usuário
         return top_rated_players[:20]
 
-    def top_by_position(self, position, n):
+    def top_by_position(self, n, position):
         top_players = [(jogador.id, jogador.media_global)
                        for lista in self.players_HT.table for jogador in lista
                        if position in jogador.posicoes and jogador.num_avaliacoes > 0]
@@ -103,6 +117,20 @@ class FIFA_Database:
         top_players.sort(key=lambda x: x[1], reverse=True)
 
         return top_players[:n]
+
+    def players_by_tags(self, tags):
+        # Create a set of all player ids that have all the tags
+        player_ids = set.intersection(*[self.tags_HT.get(tag).ocorrencias
+                                        for tag in tags])
+
+        # Create a list of players with the given ids
+        players = [self.players_HT.get(player_id)
+                   for player_id in player_ids]
+
+        # Sort the list of players by their global average
+        players.sort(key=lambda x: x.media_global, reverse=True)
+
+        return players
 
 
 # ----------------------------------------- Funções auxiliares ----------------------------------------- #
@@ -182,23 +210,27 @@ def main():
     start = time()
     fifa_db.get_players_info()
     fifa_db.get_minirating_info("../data/minirating.csv")
+    # fifa_db._update_global_ratings()  # vamos ver se isso aqui aumenta significativamente quando usarmos o minirating de 24M
     fifa_db.get_tags_info()
-    fifa_db.update_global_ratings()
     end = time()
 
-    print(f'Tempo de construção das tabelas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos\n')
+    print(
+        f'Tempo de construção das estruturas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos\n')
 
-    fifa_db.tags_HT.cons_stats()
+    for player in fifa_db.players_by_prefix('Bor'):
+        print(player)
+
+    # fifa_db.tags_HT.cons_stats()
 
     # Salvando os tabelas
-    #with open('../output/players_ht.txt', 'w') as file:
-        #file.write(str(fifa_db.players_HT))
+    # with open('../output/players_ht.txt', 'w') as file:
+    # file.write(str(fifa_db.players_HT))
 
-    #with open('../output/users_ht.txt', 'w') as file:
-        #file.write(str(fifa_db.users_HT))
+    # with open('../output/users_ht.txt', 'w') as file:
+    # file.write(str(fifa_db.users_HT))
 
-    #with open('../output/tags_ht.txt', 'w') as file:
-        #file.write(str(fifa_db.tags_HT))
+    with open('../output/tags_ht.txt', 'w') as file:
+        file.write(str(fifa_db.tags_HT))
 
 
 if __name__ == '__main__':

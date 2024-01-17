@@ -1,69 +1,103 @@
 class Trie:
     class Node:
         def __init__(self):
-            self.children = {}  # ver com o sor se realmente podemos usar um dicionário aqui
-            self.is_word = False
+            self.children = []  # Now each child is a tuple (letter, node)
+            self.player_id = None
 
-        def __str__(self):
-            return f'({self.children}, {self.is_word})'
+        def __repr__(self):
+            return f"{self.children} {self.player_id}"
 
     def __init__(self):
-        self.root = self.Node()
+        """
+        Initialize your data structure here.
+        """
+        self.root = Trie.Node()
 
-    def insert(self, word):
-        node = self.root
-        for c in word:
-            if c not in node.children:
-                node.children[c] = self.Node()
-            node = node.children[c]
+    def __str__(self):
+        return str(self.root)
 
-        node.is_word = True
+    def insert(self, name: str, player_id: str) -> None:
+        """
+        Inserts a name into the trie.
+        """
+        current = self.root
 
-    def search(self, word):
-        node = self.root
-        for c in word:
-            if c not in node.children:
-                return False
-            node = node.children[c]
+        for letter in name:
+            found = False
 
-        return node.is_word
+            for child_letter, child_node in current.children:
+                if child_letter == letter:
+                    current = child_node
+                    found = True
+                    break
 
-    def starts_with(self, prefix):
-        node = self.root
-        for c in prefix:
-            if c not in node.children:
-                return False
-            node = node.children[c]
+            if not found:
+                new_node = Trie.Node()
+                current.children.append((letter, new_node))  # Append a tuple
+                current = new_node
 
-        return True
+        current.player_id = player_id
 
-    def get_words(self, prefix):
-        node = self.root
-        for c in prefix:
-            if c not in node.children:
+    def search(self, name: str) -> str:
+        """
+        Returns the player's id if his name is in the trie.
+        """
+        current = self.root
+
+        for letter in name:
+            found = False
+
+            for child_letter, child_node in current.children:
+                if child_letter == letter:
+                    current = child_node
+                    found = True
+                    break
+
+            if not found:
+                return None
+
+        return current.player_id
+
+    def starts_with(self, prefix: str) -> list:
+        """
+        Returns all player id's that start with the given prefix.
+        """
+        current = self.root
+
+        for letter in prefix:
+            found = False
+
+            for child_letter, child_node in current.children:
+                if child_letter == letter:
+                    current = child_node
+                    found = True
+                    break
+
+            if not found:
                 return []
-            node = node.children[c]
 
-        return self._get_words(node, prefix)
+        return self._get_all_player_ids(current)
 
-    def _get_words(self, node, prefix):
-        words = []
-        if node.is_word:
-            words.append(prefix)
+    def _get_all_player_ids(self, node: "Trie.Node") -> list:
+        player_ids = []
 
-        for c in node.children:
-            words += self._get_words(node.children[c], prefix + c)
+        if node.player_id is not None:
+            player_ids.append(node.player_id)
 
-        return words
+        for child_letter, child_node in node.children:
+            player_ids += self._get_all_player_ids(child_node)
 
+        return player_ids
 
 def main():
     trie = Trie()
-    trie.insert("hello")
-    trie.insert("hell")
-    trie.insert("helium")
-    print(trie)
 
+    jogadores = ["Alex", "Max", "Angelo", "Thiago", "Fernando", "Mateus"]
+
+    for i, jogador in enumerate(jogadores):
+        trie.insert(jogador, i)
+
+    print(trie.starts_with("Ma"))
 
 
 if __name__ == "__main__":

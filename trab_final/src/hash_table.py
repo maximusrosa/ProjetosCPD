@@ -34,10 +34,10 @@ class Usuario(NamedTuple):
 
 class Tag(NamedTuple):
     id: str  # Nome da tag
-    ocorrencias: set[Jogador]  # ver com o sor se realmente podemos usar um conjunto aqui
+    ocorrencias: set[str]  # ID dos jogadores que possuem essa tag
 
     def __str__(self):
-        return f'(tag: {self.id}, ocorrencias: {[jogador.nome_curto for jogador in self.ocorrencias]})'
+        return f'(tag: {self.id}, ocorrencias: {self.ocorrencias})'
 
 
 class HashTable:
@@ -73,7 +73,7 @@ class HashTable:
         self.table = new_table
         del new_table
 
-    def insert(self, object: Jogador | Usuario | Tag):
+    def insert(self, object):
         index = self.hash(object.id)
         self.table[index].append(object)
 
@@ -81,7 +81,7 @@ class HashTable:
         if len(self.table[index]) / self.size > 0.2:
             self._resize()  # Redimensiona a tabela hash
 
-    def get(self, id: str) -> Jogador | Usuario | Tag | None:
+    def get(self, id: str):
         index = self.hash(id)
 
         for object in self.table[index]:
@@ -122,7 +122,7 @@ class HashTable:
         print(f'ESTATISTICAS DA TABELA HASH\n'
               f'Taxa de ocupacao: {(posicoes_ocupadas / self.size) * 100:.2f}%\n'
               f'Tamanho maximo de lista: {tamanho_max:.0f} elementos\n'
-              f'Tamanho medio de lista: {media:.1f} elementos\n\n')
+              f'Tamanho medio de lista: {media:.1f} elementos\n')
 
 
 class JogadorHT(HashTable):
