@@ -1,3 +1,4 @@
+import csv
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -29,7 +30,6 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
         self.grid()
-        self.data = []
         self.set_widgets()
 
     def comando(self):
@@ -49,12 +49,13 @@ class Application(tk.Frame):
                 self.tree.configure(yscrollcommand=ysb.set)
                 ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
 
-                # Define o textos do cabeçalho (nome em maiúsculas)
-                for coluna in self.dataCols:
-                    self.tree.heading(coluna, text=coluna.title())
+            # Define o textos do cabeçalho (nome em maiúsculas)
+            for c in self.dataCols:
+                self.tree.heading(c, text=c.title())
 
-                for row in reader:
-                    self.data.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
+            self.data = []
+            for row in reader:
+                self.data.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
 
                 for item in self.data:
                     self.tree.insert('', 'end', values=item)
