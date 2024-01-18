@@ -217,7 +217,7 @@ def main():
     print(
         f'Tempo de construção das estruturas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos\n')
 
-    for player in fifa_db.players_by_prefix('Bor'):
+    for player in fifa_db.players_by_prefix('Cu'):
         print(player)
 
     # fifa_db.tags_HT.cons_stats()
