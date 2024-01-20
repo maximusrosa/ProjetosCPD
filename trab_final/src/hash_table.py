@@ -62,6 +62,7 @@ class HashTable:
         pass
 
     def _resize(self):
+        print('Redimensionando a tabela hash...')
         self.size *= 2  # Dobra o tamanho da tabela hash
         new_table = [[] for _ in range(self.size)]
 
@@ -122,25 +123,28 @@ class HashTable:
         print(f'ESTATISTICAS DA TABELA HASH\n'
               f'Taxa de ocupacao: {(posicoes_ocupadas / self.size) * 100:.2f}%\n'
               f'Tamanho maximo de lista: {tamanho_max:.0f} elementos\n'
-              f'Tamanho medio de lista: {media:.1f} elementos\n')
+              f'Tamanho medio de lista: {media:.3f} elementos\n')
 
 
 class JogadorHT(HashTable):
     def hash(self, id: str) -> int:
-        # Define a custom hash function for Jogador
-        hash_value = 0
-        for char in id:
-            hash_value = ((hash_value << 5) + hash_value) + ord(char)  # hash * 33 + c
-        return hash_value % self.size
+        return int(id) % self.size
 
 
 class UsuarioHT(HashTable):
     def hash(self, id: str) -> int:
-        # Define a custom hash function for Usuario
-        hash_value = 0
-        for char in id:
-            hash_value = ((hash_value << 7) + hash_value) + ord(char)  # hash * 33 + c
-        return hash_value % self.size
+        return int(id) % self.size
+
+    def insert(self, object):
+        index = self.hash(object.id)
+
+        if self.table[index] is not []:
+            for user in self.table[index]:
+                if user.id == object.id:
+                    user.avaliacoes.append(object.avaliacoes)
+                    return
+        else:
+            self.table[index].append(object)
 
 
 class TagHT(HashTable):
