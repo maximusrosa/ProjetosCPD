@@ -3,11 +3,13 @@ from trie_tree import Trie
 from time import time
 import csv
 from collections import defaultdict
-from math import floor
+from math import floor, ceil
 
 # Constantes
 NUM_JOGADORES = 18944
-NUM_USUARIOS = 9642  # pro minirating de 10k
+#NUM_USUARIOS = 138425  # pro rating de 1M
+NUM_USUARIOS = 138493  # pro rating de 10M
+#NUM_USUARIOS = 138493  # pro rating de 24M
 NUM_TAGS = 937
 
 
@@ -32,22 +34,26 @@ class FIFA_Database:
             for row in reader:
                 self.players_HT.insert(Jogador(id=row[0], nome_curto=row[1], nome=row[2], posicoes=row[3],
                                                nacionalidade=row[4], clube=row[5], liga=row[6]))
-                self.long_names_Trie.insert(row[2], row[0])
+                # self.long_names_Trie.insert(row[2], row[0])
 
     def get_minirating_info(self, filename='../data/minirating.csv'):
         with open(filename, 'r') as file:
             reader = csv.reader(file)
             next(reader)
 
-            for row in reader:
-                # Atualização da Tabela de Usuários
-                user = self.users_HT.get(row[0])
+            print("\nConstruindo Tabela Hash de Usuários...\n")
 
-                if user is None:
-                    self.users_HT.insert(
-                        Usuario(id=row[0], avaliacoes=[Usuario.Avaliacao(player_id=row[1], nota=float(row[2]))]))
+            for row in reader:
+                #user_id = row[0]
+                #sofifa_id = row[1]
+                #rating = float(row[2])
+                
+                # Atualização da Tabela de Usuários
+                if self.users_HT.get(row[0]) is not None:
+                    self.users_HT.get(row[0]).avaliacoes.append(Usuario.Avaliacao(row[1], float(row[2])))
+
                 else:
-                    user.avaliacoes.append(Usuario.Avaliacao(player_id=row[1], nota=float(row[2])))
+                    self.users_HT.insert(Usuario(row[0], [Usuario.Avaliacao(row[1], float(row[2]))]))
 
                 # Atualização da Tabela de Jogadores
                 index = self.players_HT.hash(row[1])
@@ -57,7 +63,10 @@ class FIFA_Database:
                         jogador.soma_notas += float(row[2])
                         jogador.num_avaliacoes += 1
 
+        print("Tabela Hash de Usuários construída.")
+
         self._update_global_ratings()
+        print("Médias globais atualizadas.")
 
     def get_tags_info(self, filename='../data/tags.csv'):
         with open(filename, 'r') as file:
@@ -165,7 +174,7 @@ def count_unique_tags(filename='../data/tags.csv'):
     return len(unique_tags)
 
 
-def count_unique_users(filename='../data/minirating.csv'):
+def count_unique_users(filename='../data/rating.csv'):
     unique_users = set()
 
     with open(filename, 'r') as file:
@@ -178,59 +187,41 @@ def count_unique_users(filename='../data/minirating.csv'):
     return len(unique_users)
 
 
-def print_digit_position_frequency_in_player_ids(filename='../data/players.csv'):
-    # Initialize a list of default dictionaries to store the frequency of each digit by position
-    digit_position_frequency = [defaultdict(int) for _ in range(6)]  # Assuming player id has at most 10 digits
-
-    # Open the file and read it line by line
-    with open(filename, 'r') as file:
-        reader = csv.reader(file)
-        next(reader)  # Skip the header
-
-        # For each line, extract the player's id
-        for row in reader:
-            player_id = row[0]
-
-            # For each position in the player's id, increment its count in the corresponding frequency table
-            for i, digit in enumerate(player_id):
-                digit_position_frequency[i][digit] += 1
-
-    # Print the frequency tables
-    for i, digit_frequency in enumerate(digit_position_frequency):
-        print(f'Position {i + 1}:')
-        for digit, frequency in sorted(digit_frequency.items()):
-            print(f'  Digit {digit}: {frequency} times')
-
-
 # --------------------------------------------------------------------------------------------------------- #
 
 def main():
+    # Pré-processamento
     fifa_db = FIFA_Database()
 
     start = time()
+
     fifa_db.get_players_info()
-    fifa_db.get_minirating_info("../data/minirating.csv")
-    # fifa_db._update_global_ratings()  # vamos ver se isso aqui aumenta significativamente quando usarmos o minirating de 24M
-    fifa_db.get_tags_info()
+    print("Tabela Hash de jogadores construída.")
+
+    fifa_db.get_minirating_info('../data/rating_10m.csv')  # Boss Final
+
+    # fifa_db.get_tags_info()
+    # print("Tabela Hash de Tags construída.")
+
     end = time()
 
     print(
         f'Tempo de construção das estruturas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos\n')
 
-    for player in fifa_db.players_by_prefix('Cu'):
-        print(player)
-
+    # Testando as funções hash / tamanho das tabelas
+    # fifa_db.players_HT.cons_stats()
+    fifa_db.users_HT.cons_stats()
     # fifa_db.tags_HT.cons_stats()
 
     # Salvando os tabelas
     # with open('../output/players_ht.txt', 'w') as file:
     # file.write(str(fifa_db.players_HT))
 
-    # with open('../output/users_ht.txt', 'w') as file:
-    # file.write(str(fifa_db.users_HT))
+    #with open('../output/users_ht.txt', 'w') as file:
+        #file.write(str(fifa_db.users_HT))
 
-    with open('../output/tags_ht.txt', 'w') as file:
-        file.write(str(fifa_db.tags_HT))
+    # with open('../output/tags_ht.txt', 'w') as file:
+    # file.write(str(fifa_db.tags_HT))
 
 
 if __name__ == '__main__':
