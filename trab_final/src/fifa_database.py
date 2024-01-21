@@ -4,6 +4,7 @@ from time import time
 import csv
 from collections import defaultdict
 from math import floor, ceil
+import concurrent.futures
 
 # Constantes
 NUM_JOGADORES = 18944
@@ -15,7 +16,7 @@ NUM_TAGS = 937
 class FIFA_Database:
     def __init__(self):
         self.players_HT = JogadorHT(floor(NUM_JOGADORES / 5))
-        self.users_HT = UsuarioHT(round(count_unique_users() / 5))
+        self.users_HT = UsuarioHT(round(count_unique_users()/5))
         self.tags_HT = TagHT(floor(NUM_TAGS / 5))
         self.long_names_Trie = Trie()
 
@@ -35,56 +36,55 @@ class FIFA_Database:
                                                nacionalidade=row[4], clube=row[5], liga=row[6]))
                 # self.long_names_Trie.insert(row[2], row[0])
 
-    def get_minirating_info(self, filename='../data/minirating.csv'):
-        players_cache = []  # lista que guardará o cache dos players, ou seja, seu Módulo
+    def _process_chunk(self, chunk):
+        players_cache = []
+        lastIdChecked = None
+        index = -1
+        player_aux = None
+        users_HT = UsuarioHT(5000)
 
+        for row in chunk:
+            user_id = row[0]
+            sofifa_id = row[1]
+            rating = float(row[2])
+
+            if lastIdChecked != sofifa_id:
+                lastIdChecked = sofifa_id
+                player = self.players_HT.get(sofifa_id)
+                player.soma_notas += rating
+                player.num_avaliacoes += 1
+                players_cache.append(player)
+                player_aux = player
+                index += 1
+            else:
+                player = players_cache[index]
+                player.soma_notas += rating
+                player.num_avaliacoes += 1
+                player_aux = player
+
+            if users_HT.get(user_id) is not None:
+                users_HT.get(user_id).avaliacoes.append(Usuario.Avaliacao(player_aux, rating))
+            else:
+                users_HT.insert(Usuario(user_id, [Usuario.Avaliacao(player_aux, rating)]))
+
+        return users_HT
+
+    def get_minirating_info(self, filename='../data/minirating.csv'):
         with open(filename, 'r') as file:
             reader = csv.reader(file)
             next(reader)
+            data = list(reader)
 
-            print("\nConstruindo Tabela Hash de Usuários...\n")
+        num_threads = 8  # Or however many threads you want to use
+        chunks = [data[i::num_threads] for i in range(num_threads)]
 
-            lastIdChecked = None  # responsável por saber qual último sofifa_id visitado
-            index = -1  # index utilizável por apontar para o modulo certo do player, so será mudado quando
-            # um sofifa_id diferente for encontrado
+        with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
+            results = list(executor.map(self._process_chunk, chunks))
 
-            player_aux = None  # cópia do player pego
+        for users_HT in results:
+            for lista in users_HT.table:
+                self.users_HT.table.extend(lista)
 
-            for row in reader:
-                # dados do csv
-                user_id = row[0]
-                sofifa_id = row[1]
-                rating = float(row[2])
-
-                if lastIdChecked != sofifa_id:
-                    lastIdChecked = sofifa_id
-
-                    player = self.players_HT.get(sofifa_id)
-                    player.soma_notas += rating
-                    player.num_avaliacoes += 1
-
-                    players_cache.append(player)
-                    player_aux = player
-                    index += 1
-
-                else:
-                    player = players_cache[index]
-                    player.soma_notas += rating
-                    player.num_avaliacoes += 1
-
-                    player_aux = player
-
-
-                if self.users_HT.get(user_id) is not None:
-                    self.users_HT.get(user_id).avaliacoes.append(Usuario.Avaliacao(player_aux, rating))
-
-                else:
-                    self.users_HT.insert(Usuario(user_id, [Usuario.Avaliacao(player_aux, rating)]))
-
-        print("Tabela Hash de Usuários construída.")
-
-        self._update_global_ratings()
-        print("Médias globais atualizadas.")
 
     def get_tags_info(self, filename='../data/tags.csv'):
         with open(filename, 'r') as file:
@@ -110,6 +110,7 @@ class FIFA_Database:
 
         # end = time()
         # print(f'Tempo para atualizar as médias globais: {(end - start) * 1000:.4f} milisegundos')
+
 
     # ----------------------------------------- Pesquisas ----------------------------------------- #
 
@@ -228,8 +229,20 @@ def main():
 
     # Testando as funções hash / tamanho das tabelas
     # fifa_db.players_HT.cons_stats()
-    # fifa_db.users_HT.cons_stats()
+    fifa_db.users_HT.cons_stats()
     # fifa_db.tags_HT.cons_stats()
+
+    print(fifa_db.users_HT)
+
+
+
+
+
+
+
+
+
+
 
     # Salvando os tabelas
     # with open('../output/players_ht.txt', 'w') as file:
