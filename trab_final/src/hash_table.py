@@ -135,17 +135,6 @@ class UsuarioHT(HashTable):
     def hash(self, id: str) -> int:
         return int(id) % self.size
 
-    def insert(self, object):
-        index = self.hash(object.id)
-
-        if self.table[index] is not []:
-            for user in self.table[index]:
-                if user.id == object.id:
-                    user.avaliacoes.append(object.avaliacoes)
-                    return
-        else:
-            self.table[index].append(object)
-
 
 class TagHT(HashTable):
     def __init__(self, size):

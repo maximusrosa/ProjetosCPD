@@ -4,3 +4,7 @@ lab_02/__pycache__/test_main_max.cpython-312-pytest-7.4.3.pyc
 *.pyc
 .idea/csv-editor.xml
 .idea/csv-editor.xml
+trab_final/data/rating_10m.csv
+trab_final/data/rating_1m.csv
+.idea/csv-editor.xml
+trab_final/src/teste.py

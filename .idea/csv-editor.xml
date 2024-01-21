@@ -31,6 +31,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\trab_final\data\rating_1m.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\trab_final\data\tags.csv">
           <value>
             <Attribute>

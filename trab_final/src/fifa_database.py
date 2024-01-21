@@ -7,8 +7,10 @@ from math import floor, ceil
 
 # Constantes
 NUM_JOGADORES = 18944
-NUM_USUARIOS = 9642  # pro minirating de 10k
-# NUM_USUARIOS = 138493  # pro minirating de 24M
+#NUM_USUARIOS = 9642  # pro minirating de 10k
+NUM_USUARIOS = 138425  # pro rating de 1M
+#NUM_USUARIOS = 138493  # pro rating de 10M
+#NUM_USUARIOS = 138493  # pro rating de 24M
 NUM_TAGS = 937
 
 
@@ -36,24 +38,50 @@ class FIFA_Database:
                 # self.long_names_Trie.insert(row[2], row[0])
 
     def get_minirating_info(self, filename='../data/minirating.csv'):
+        players_cache = []  # lista que guardará o cache dos players, ou seja, seu Módulo
+
         with open(filename, 'r') as file:
             reader = csv.reader(file)
             next(reader)
 
             print("\nConstruindo Tabela Hash de Usuários...\n")
 
+            lastIdChecked = None  # responsável por saber qual último sofifa_id visitado
+            index = -1  # index utilizável por apontar para o modulo certo do player, so será mudado quando
+            # um sofifa_id diferente for encontrado
+
+            player_aux = None  # cópia do player pego
+
             for row in reader:
-                # Atualização da Tabela de Usuários
-                self.users_HT.insert(Usuario(id=row[0],
-                                             avaliacoes=[Usuario.Avaliacao(player_id=row[1], nota=float(row[2]))]))
+                # dados do csv
+                user_id = row[0]
+                sofifa_id = row[1]
+                rating = float(row[2])
 
-                # Atualização da Tabela de Jogadores
-                index = self.players_HT.hash(row[1])
+                if lastIdChecked != sofifa_id:
+                    lastIdChecked = sofifa_id
 
-                for jogador in self.players_HT.table[index]:
-                    if jogador.id == row[1]:
-                        jogador.soma_notas += float(row[2])
-                        jogador.num_avaliacoes += 1
+                    player = self.players_HT.get(sofifa_id)
+                    player.soma_notas += rating
+                    player.num_avaliacoes += 1
+
+                    players_cache.append(player)
+                    player_aux = player
+                    index += 1
+
+                else:
+                    player = players_cache[index]
+                    player.soma_notas += rating
+                    player.num_avaliacoes += 1
+
+                    player_aux = player
+
+
+                if self.users_HT.get(user_id) is not None:
+                    self.users_HT.get(user_id).avaliacoes.append(Usuario.Avaliacao(player_aux, rating))
+
+                else:
+                    self.users_HT.insert(Usuario(user_id, [Usuario.Avaliacao(player_aux, rating)]))
 
         print("Tabela Hash de Usuários construída.")
 
@@ -80,7 +108,7 @@ class FIFA_Database:
         for lista in self.players_HT.table:
             for jogador in lista:
                 if jogador.num_avaliacoes != 0:
-                    jogador.media_global = jogador.soma_notas / jogador.num_avaliacoes
+                    jogador.media_global = round((jogador.soma_notas / jogador.num_avaliacoes), 6)
 
         # end = time()
         # print(f'Tempo para atualizar as médias globais: {(end - start) * 1000:.4f} milisegundos')
@@ -101,7 +129,7 @@ class FIFA_Database:
 
         # Create a list of tuples containing the player's id, the user's rating and the player's global average
         top_rated_players = [
-            (avaliacao.player_id, avaliacao.nota, self.players_HT.get(avaliacao.player_id).media_global)
+            (avaliacao.id_jogador, avaliacao.nota, self.players_HT.get(avaliacao.id_jogador).media_global)
             for avaliacao in user.avaliacoes]
 
         # Sort the list in descending order by user_rating and then by global_average
@@ -190,7 +218,7 @@ def main():
     fifa_db.get_players_info()
     print("Tabela Hash de jogadores construída.")
 
-    fifa_db.get_minirating_info('../data/minirating.csv')  # Boss Final
+    fifa_db.get_minirating_info('../data/rating_10m.csv')  # Boss Final
 
     # fifa_db.get_tags_info()
     # print("Tabela Hash de Tags construída.")
@@ -202,18 +230,19 @@ def main():
 
     # Testando as funções hash / tamanho das tabelas
     # fifa_db.players_HT.cons_stats()
-    fifa_db.users_HT.cons_stats()
+    #fifa_db.users_HT.cons_stats()
     # fifa_db.tags_HT.cons_stats()
 
     # Salvando os tabelas
     # with open('../output/players_ht.txt', 'w') as file:
     # file.write(str(fifa_db.players_HT))
 
-    with open('../output/users_ht.txt', 'w') as file:
-        file.write(str(fifa_db.users_HT))
+    #with open('../output/users_ht.txt', 'w') as file:
+        #file.write(str(fifa_db.users_HT))
 
     # with open('../output/tags_ht.txt', 'w') as file:
     # file.write(str(fifa_db.tags_HT))
+
 
 
 if __name__ == '__main__':
