@@ -8,8 +8,8 @@ from math import floor, ceil
 # Constantes
 NUM_JOGADORES = 18944
 #NUM_USUARIOS = 9642  # pro minirating de 10k
-NUM_USUARIOS = 138425  # pro rating de 1M
-#NUM_USUARIOS = 138493  # pro rating de 10M
+#NUM_USUARIOS = 138425  # pro rating de 1M
+NUM_USUARIOS = 138493  # pro rating de 10M
 #NUM_USUARIOS = 138493  # pro rating de 24M
 NUM_TAGS = 937
 
@@ -35,7 +35,9 @@ class FIFA_Database:
             for row in reader:
                 self.players_HT.insert(Jogador(id=row[0], nome_curto=row[1], nome=row[2], posicoes=row[3],
                                                nacionalidade=row[4], clube=row[5], liga=row[6]))
-                # self.long_names_Trie.insert(row[2], row[0])
+                self.long_names_Trie.insert(row[2], row[0])
+
+        print("Tabela Hash de Jogadores e Árvore Trie de nomes longos construídas.")
 
     def get_minirating_info(self, filename='../data/minirating.csv'):
         players_cache = []  # lista que guardará o cache dos players, ou seja, seu Módulo
@@ -76,9 +78,10 @@ class FIFA_Database:
 
                     player_aux = player
 
+                user = self.users_HT.get(user_id)
 
-                if self.users_HT.get(user_id) is not None:
-                    self.users_HT.get(user_id).avaliacoes.append(Usuario.Avaliacao(player_aux, rating))
+                if user is not None:
+                    user.avaliacoes.append(Usuario.Avaliacao(player_aux, rating))
 
                 else:
                     self.users_HT.insert(Usuario(user_id, [Usuario.Avaliacao(player_aux, rating)]))
@@ -101,6 +104,8 @@ class FIFA_Database:
                     self.tags_HT.insert(Tag(id=row[2], ocorrencias={row[1]}))
                 else:
                     tag.ocorrencias.add(row[1])
+
+        print("Tabela Hash de Tags construída.")
 
     def _update_global_ratings(self):
         # start = time()
@@ -216,12 +221,11 @@ def main():
     start = time()
 
     fifa_db.get_players_info()
-    print("Tabela Hash de jogadores construída.")
 
-    fifa_db.get_minirating_info('../data/rating_1m.csv')  # Boss Final
+    fifa_db.get_tags_info()
 
-    # fifa_db.get_tags_info()
-    # print("Tabela Hash de Tags construída.")
+    fifa_db.get_minirating_info('../data/rating.csv')  # Boss Final
+
 
     end = time()
 
