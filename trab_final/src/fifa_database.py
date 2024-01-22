@@ -1,4 +1,4 @@
-from hash_table import Jogador, Usuario, Tag, JogadorHT, UsuarioHT, TagHT
+from hash_table import Jogador, Usuario, Tag, HashTable, TagHT
 from trie_tree import Trie
 from time import time
 import csv
@@ -16,8 +16,8 @@ NUM_TAGS = 937
 
 class FIFA_Database:
     def __init__(self):
-        self.players_HT = JogadorHT(floor(NUM_JOGADORES / 5))
-        self.users_HT = UsuarioHT(floor(NUM_USUARIOS / 5))
+        self.players_HT = HashTable(floor(NUM_JOGADORES / 5))
+        self.users_HT = HashTable(floor(NUM_USUARIOS / 5))
         self.tags_HT = TagHT(floor(NUM_TAGS / 5))
         self.long_names_Trie = Trie()
 
@@ -218,7 +218,7 @@ def main():
     fifa_db.get_players_info()
     print("Tabela Hash de jogadores construída.")
 
-    fifa_db.get_minirating_info('../data/rating_10m.csv')  # Boss Final
+    fifa_db.get_minirating_info('../data/rating_1m.csv')  # Boss Final
 
     # fifa_db.get_tags_info()
     # print("Tabela Hash de Tags construída.")

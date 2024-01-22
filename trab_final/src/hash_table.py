@@ -58,8 +58,8 @@ class HashTable:
 
         return output
 
-    def hash(self, id: str):
-        pass
+    def hash(self, id: str) -> int:
+        return int(id) % self.size
 
     def _resize(self):
         print('Redimensionando a tabela hash...')
@@ -124,16 +124,6 @@ class HashTable:
               f'Taxa de ocupacao: {(posicoes_ocupadas / self.size) * 100:.2f}%\n'
               f'Tamanho maximo de lista: {tamanho_max:.0f} elementos\n'
               f'Tamanho medio de lista: {media:.3f} elementos\n')
-
-
-class JogadorHT(HashTable):
-    def hash(self, id: str) -> int:
-        return int(id) % self.size
-
-
-class UsuarioHT(HashTable):
-    def hash(self, id: str) -> int:
-        return int(id) % self.size
 
 
 class TagHT(HashTable):
