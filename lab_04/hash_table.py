@@ -44,7 +44,7 @@ class HashTable:
         for jogador in self.table[hash_index]:
             consultas += 1
             if jogador.id == id:
-                return (f"{id}", f"{jogador.nome}", consultas)
+                return (f"{id}", f"{jogador.nome_longo}", consultas)
         return (f"{id}", "NAO ENCONTRADO", consultas)
 
     def remove(self, id):
@@ -61,7 +61,7 @@ class HashTable:
             output += f"{i}: "
             if lista_jogadores:
                 output += ", ".join(
-                    [f"({jogador.id}, {jogador.nome}, {jogador.posições})" for jogador in lista_jogadores])
+                    [f"({jogador.id}, {jogador.nome_longo}, {jogador.posições})" for jogador in lista_jogadores])
             output += "\n"
         return output
 
