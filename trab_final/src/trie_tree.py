@@ -1,34 +1,36 @@
 from hash_table import HashTable
+from typing import NamedTuple
 
-class NodeHT(HashTable):
+class EdgeHT(HashTable):
     def __iter__(self):
         for index in range(self.size):
             for item in self.table[index]:
                 yield item
 
     def hash(self, id: str):
-        return ord(id[0]) % self.size
+        return ord(id) % self.size
 
     def insert(self, object):
-        index = self.hash(object[0])
+        index = self.hash(object.id)
         self.table[index].append(object)
 
-    def get(self, id: str):
-        index = self.hash(id)
-        for object in self.table[index]:
-            if object[0] == id:  # Corrected line
-                return object
-        return None
-
+        # Se a taxa de ocupação dessa lista encadeada é maior que 20% do tamanho da tabela hash
+        if len(self.table[index]) / self.size > 0.2:
+            self._resize()  # Redimensiona a tabela hash
 
 class Trie:
     class Node:
+        class Edge(NamedTuple):
+            id: str  # Letra
+            node: "Trie.Node"
+
         def __init__(self):
-            self.children = NodeHT(5)  # floor(26 / 5) = 5
+            self.edges = EdgeHT(5)  # floor(26 / 5) = 5
             self.player_id = None
 
         def __repr__(self):
-            return f"{self.children} {self.player_id}"
+            return f"{self.edges} {self.player_id}"
+
 
     def __init__(self):
         """
@@ -46,14 +48,14 @@ class Trie:
         current = self.root
 
         for letter in name:
-            found = current.children.get(letter)
+            found = current.edges.get(letter)
 
             if found:
-                current = found[1]
+                current = found.node
 
             else:
                 new_node = Trie.Node()
-                current.children.insert((letter, new_node))
+                current.edges.insert(Trie.Node.Edge(letter, new_node))
                 current = new_node
 
         current.player_id = player_id
@@ -65,10 +67,10 @@ class Trie:
         current = self.root
 
         for letter in name:
-            found = current.children.get(letter)
+            found = current.edges.get(letter)
 
             if found:
-                current = found[1]
+                current = found.node
 
             else:
                 return None
@@ -82,10 +84,10 @@ class Trie:
         current = self.root
 
         for letter in prefix:
-            found = current.children.get(letter)
+            found = current.edges.get(letter)
 
             if found:
-                current = found[1]
+                current = found.node
 
             else:
                 return []
@@ -98,8 +100,8 @@ class Trie:
         if node.player_id is not None:
             player_ids.append(node.player_id)
 
-        for child in node.children:
-            player_ids += self._get_all_player_ids(child[1])
+        for edge in node.edges:
+            player_ids += self._get_all_player_ids(edge.node)
 
         return player_ids
 
