@@ -14,6 +14,10 @@ class EdgeHT(HashTable):
         index = self.hash(object.id)
         self.table[index].append(object)
 
+        # Se a taxa de ocupação dessa lista encadeada é maior que 20% do tamanho da tabela hash
+        if len(self.table[index]) / self.size > 0.2:
+            self._resize()  # Redimensiona a tabela hash
+
 class Trie:
     class Node:
         class Edge(NamedTuple):

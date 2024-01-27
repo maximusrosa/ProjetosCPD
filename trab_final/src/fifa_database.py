@@ -2,15 +2,13 @@ from hash_table import Jogador, Usuario, Tag, HashTable, TagHT
 from trie_tree import Trie
 from time import time
 import csv
-from collections import defaultdict
-from math import floor, ceil
+from math import floor
 
 # Constantes
 NUM_JOGADORES = 18944
 #NUM_USUARIOS = 9642  # pro minirating de 10k
-#NUM_USUARIOS = 138425  # pro rating de 1M
-NUM_USUARIOS = 138493  # pro rating de 10M
-#NUM_USUARIOS = 138493  # pro rating de 24M
+NUM_USUARIOS = 138425  # pro rating de 1M
+#NUM_USUARIOS = 138493  # pro rating de 10M / 24M
 NUM_TAGS = 937
 
 
@@ -33,15 +31,13 @@ class FIFA_Database:
             next(reader)  # Pula o cabeçalho
 
             for row in reader:
-                self.players_HT.insert(Jogador(id=row[0], nome_curto=row[1], nome=row[2], posicoes=row[3],
+                self.players_HT.insert(Jogador(id=row[0], nome_curto=row[1], nome_longo=row[2], posicoes=row[3],
                                                nacionalidade=row[4], clube=row[5], liga=row[6]))
                 self.long_names_Trie.insert(row[2], row[0])
 
         print("Tabela Hash de Jogadores e Árvore Trie de nomes longos construídas.")
 
-    def get_minirating_info(self, filename='../data/minirating.csv'):
-        players_cache = []  # lista que guardará o cache dos players, ou seja, seu Módulo
-
+    def get_rating_info(self, filename='../data/rating.csv'):
         with open(filename, 'r') as file:
             reader = csv.reader(file)
             next(reader)
@@ -49,13 +45,8 @@ class FIFA_Database:
             print("\nConstruindo Tabela Hash de Usuários...\n")
 
             lastIdChecked = None  # responsável por saber qual último sofifa_id visitado
-            index = -1  # index utilizável por apontar para o modulo certo do player, so será mudado quando
-            # um sofifa_id diferente for encontrado
-
-            player_aux = None  # cópia do player pego
 
             for row in reader:
-                # dados do csv
                 user_id = row[0]
                 sofifa_id = row[1]
                 rating = float(row[2])
@@ -67,24 +58,17 @@ class FIFA_Database:
                     player.soma_notas += rating
                     player.num_avaliacoes += 1
 
-                    players_cache.append(player)
-                    player_aux = player
-                    index += 1
-
                 else:
-                    player = players_cache[index]
                     player.soma_notas += rating
                     player.num_avaliacoes += 1
-
-                    player_aux = player
 
                 user = self.users_HT.get(user_id)
 
                 if user is not None:
-                    user.avaliacoes.append(Usuario.Avaliacao(player_aux, rating))
+                    user.avaliacoes.append(Usuario.Avaliacao(sofifa_id, rating))
 
                 else:
-                    self.users_HT.insert(Usuario(user_id, [Usuario.Avaliacao(player_aux, rating)]))
+                    self.users_HT.insert(Usuario(user_id, [Usuario.Avaliacao(sofifa_id, rating)]))
 
         print("Tabela Hash de Usuários construída.")
 
@@ -216,36 +200,35 @@ def count_unique_users(filename='../data/rating.csv'):
 
 def main():
     # Pré-processamento
-    fifa_db = FIFA_Database()
-
     start = time()
+
+    fifa_db = FIFA_Database()
 
     fifa_db.get_players_info()
 
     fifa_db.get_tags_info()
 
-    fifa_db.get_minirating_info('../data/rating.csv')  # Boss Final
-
+    #fifa_db.get_rating_info('../data/rating_1m.csv')
 
     end = time()
 
     print(
-        f'Tempo de construção das estruturas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos\n')
+        f'\nTempo de construção das estruturas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos')
 
     # Testando as funções hash / tamanho das tabelas
     # fifa_db.players_HT.cons_stats()
-    #fifa_db.users_HT.cons_stats()
+    # fifa_db.users_HT.cons_stats()
     # fifa_db.tags_HT.cons_stats()
 
     # Salvando os tabelas
-    # with open('../output/players_ht.txt', 'w') as file:
-    # file.write(str(fifa_db.players_HT))
+    #with open('../output/players_ht.txt', 'w') as file:
+        #file.write(str(fifa_db.players_HT))
 
     #with open('../output/users_ht.txt', 'w') as file:
         #file.write(str(fifa_db.users_HT))
 
-    # with open('../output/tags_ht.txt', 'w') as file:
-    # file.write(str(fifa_db.tags_HT))
+    #with open('../output/tags_ht.txt', 'w') as file:
+        #file.write(str(fifa_db.tags_HT))
 
 
 
