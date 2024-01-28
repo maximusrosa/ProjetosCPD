@@ -28,43 +28,78 @@ def cria_interface():
     return master
 
 
-class Application(tk.Frame):
+class MyApplication:
+    def __init__(self, root):
+        self.root = root
+        self.root.geometry('1400x520')
 
-    def __init__(self, master=None, base_de_dados_fifa=None):
-        tk.Frame.__init__(self, master)
-        self.grid()
+        self.style = ttk.Style()
+        self.style.configure("Treeview.Heading", font=("yu gothic vi", 10, "bold"))
+
+        self.scrollbarx = Scrollbar(root, orient=tk.HORIZONTAL)
+        self.scrollbary = Scrollbar(root, orient=tk.VERTICAL)
+
+        self.my_tree = ttk.Treeview(root)
+        self.my_tree.place(relx=0.01, rely=0.128, width=1292, height=410)
+        self.my_tree.configure(yscrollcommand=self.scrollbary.set, xscrollcommand=self.scrollbarx.set)
+        self.my_tree.configure(selectmode="extended")
+
+        self.scrollbary.configure(command=self.my_tree.yview)
+        self.scrollbarx.configure(command=self.my_tree.xview)
+
+        self.scrollbary.place(relx=0.934, rely=0.128, width=22, height=432)
+        self.scrollbarx.place(relx=0.002, rely=0.922, width=1302, height=22)
+
+        self.my_tree.configure(
+            columns=(
+                "sofifa_id", 
+                "short_name", 
+                "long_name", 
+                "player_positions", 
+                "nationality", 
+                "club_name", 
+                "league_name", 
+                "global_rating", 
+                "count"
+            ),
+            show='headings'  # Oculta a coluna extra
+        )
+
         self.set_widgets()
-        self.data = []
-        self.base_de_dados = base_de_dados_fifa
-        self.mostrar_players()
+        self.mostrar_elementos()
 
-    def mostrar_players(self):
-        with open('data/players.csv', 'r', encoding='utf-8') as file:
-            reader = csv.reader(file)
-            row = next(reader)
+    def set_widgets(self):
+        # Cria as colunas
+        self.my_tree.heading("sofifa_id", text="sofifa_id")
+        self.my_tree.heading("short_name", text="short_name")
+        self.my_tree.heading("long_name", text="long_name")
+        self.my_tree.heading("player_positions", text="player_positions")
+        self.my_tree.heading("nationality", text="nationality")
+        self.my_tree.heading("club_name", text="club_name")
+        self.my_tree.heading("league_name", text="league_name")
+        self.my_tree.heading("global_rating", text="global_rating")
+        self.my_tree.heading("count", text="count")
 
-            # Inicia o Treeview com as seguintes colunas:
-            self.dataCols = (row[0], row[1], row[2], row[3], row[4], row[5], row[6])
-            self.tree = ttk.Treeview(columns=self.dataCols, show='headings')
-            self.tree.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
+        # Cria um botão que imprime "Oi" quando clicado
+        self.button = Button(self.root, text="Print Oi", command=self.funcao)
+        self.button.place(relx=0.01, rely=0.04, width=100, height=30)  # Posiciona o botão na janela
 
-            # Barra de rolagem
-            xsb = ttk.Scrollbar(orient=tk.HORIZONTAL, command=self.tree.xview)
-            ysb = ttk.Scrollbar(orient=tk.VERTICAL, command=self.tree.yview)
-            self.tree.configure(xscrollcommand=xsb.set, yscrollcommand=ysb.set)
-            xsb.grid(row=1, column=0, sticky=tk.E + tk.W)
-            ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
+        # Cria uma caixa de texto pra digitar algo e um botão que imprime o que foi digitado
+        self.entry = Entry(self.root)
+        self.entry.place(relx=0.2, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.button2 = Button(self.root, text="Print", command=lambda: print(self.entry.get()))
+        self.button2.place(relx=0.12, rely=0.01, width=100, height=30)  # Posiciona o botão na janela
 
-            # Define o textos do cabeçalho (nome em maiúsculas)
-            for c in self.dataCols:
-                self.tree.heading(c, text=c.title())
+    def mostrar_elementos(self):
+        # Cria elementos pra colocar nas linhas
+        for i in range(100):
+            if i % 2 == 0:
+                self.my_tree.insert(parent='', index='end', iid={i}, text="Parent", values=("John", "1", "1000", "123456789", f"{i}@gmail.com", "IT", "Manager", "Address"), tags='evenrow')
+            else:
+                self.my_tree.insert(parent='', index='end', iid={i}, text="Parent", values=("John", "1", "1000", "123456789", f"{i}@gmail.com", "IT", "Manager", "Address"))
 
-            self.data.clear()
-            for row in reader:
-                self.data.append((row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
-                
-        for item in self.data:
-            self.tree.insert('', 'end', values=item)
+        # Configura a cor de fundo das linhas pares
+        self.my_tree.tag_configure('evenrow', background='#f2f2f2')
 
     def procura_por_prefixo(self, prefixo):
 
@@ -176,36 +211,6 @@ class Application(tk.Frame):
         else:
             return
 
-    def set_widgets(self):
-        
-        funcao = tk.Button(self.master, text="Mostrar jogadores", command=self.mostrar_players)
-        funcao.place(x=60, y=250)
-
-        # pesquisa1 prefixo dos jogadores ordenados por rating
-        # pesquisa2 por id do usuario que mostra ordenado por rating e depois global_rating
-        # pesquisa3 top10 jogadores de uma posição tipo 'ST' ordenados por RATING
-        # pesquisa4 pesquisa por jogador.posições e jogador.nacionalidade ordenados por rating
-
-        # Entrada 1
-        prefixo = tk.Entry(width=34)  # Digita o nome do jogador aqui
-        prefixo.place(x=260, y=240)
-        prefixo.focus()  # Deixa o cursor na entrada
-        add_button = tk.Button(text="Busca por prefixo", width=33, command=lambda: self.procura_por_prefixo(prefixo.get()))
-        add_button.place(x=260, y=260)
-
-        # Entrada 2
-        usuario = tk.Entry(width=34)  # Digita o id do usuário aqui
-        usuario.place(x=600, y=240)
-        usuario.focus()  # Deixa o cursor na entrada
-        add_button = tk.Button(text="Busca por usuário", width=33, command=lambda: self.procura_por_usuario(usuario.get()))
-        add_button.place(x=600, y=260)
-
-        # Entrada 3
-        posicao = tk.Entry(width=34)  # Digita o id do usuário aqui
-        posicao.place(x=940, y=240)
-        posicao.focus()  # Deixa o cursor na entrada
-        add_button = tk.Button(text="Busca por posição", width=33, command=lambda: self.procura_por_posicao(posicao.get()))
-        add_button.place(x=940, y=260)
 
 
     def _limpa_tabela(self):

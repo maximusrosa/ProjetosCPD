@@ -1,101 +1,89 @@
-import tkinter as tk
+from tkinter import *
 from tkinter import ttk
+import tkinter as tk
+from tkinter import messagebox
 
-import random
-import string
+class MyApplication:
+    def __init__(self, root):
+        self.root = root
+        self.root.geometry('1400x520')
 
-def atualizar():
-    # Atualiza os nomes das colunas
-    for i, col in enumerate(tree['columns']):
-        tree.heading(col, text=f'Nova Coluna {i+1}')
+        self.style = ttk.Style()
+        self.style.configure("Treeview.Heading", font=("yu gothic vi", 10, "bold"))
 
-    # Limpa o Treeview
-    for item in tree.get_children():
-        tree.delete(item)
+        self.scrollbarx = Scrollbar(root, orient=tk.HORIZONTAL)
+        self.scrollbary = Scrollbar(root, orient=tk.VERTICAL)
 
-    # Adiciona novos itens ao Treeview
-    for i in range(1000):
-        # Gera uma letra aleatória do alfabeto
-        letra = random.choice(string.ascii_letters)
-        # Aplica o estilo 'linha_par' às linhas pares
-        tree.insert('', 'end', values=(f'Item {letra} Nova Coluna 1', f'Item {letra} Nova Coluna 2', f'Item {letra} Nova Coluna 3', f'Item {letra} Nova Coluna 4', f'Item {letra} Nova Coluna 5'), tags=('linha_par' if i % 2 == 0 else ''))
+        self.my_tree = ttk.Treeview(root)
+        self.my_tree.place(relx=0.01, rely=0.128, width=1292, height=410)
+        self.my_tree.configure(yscrollcommand=self.scrollbary.set, xscrollcommand=self.scrollbarx.set)
+        self.my_tree.configure(selectmode="extended")
 
-def atualizar_com_texto(entry):
-    # Pega o texto digitado pelo usuário
-    texto = entry.get()
+        self.scrollbary.configure(command=self.my_tree.yview)
+        self.scrollbarx.configure(command=self.my_tree.xview)
 
-    # Limpa o Treeview
-    for item in tree.get_children():
-        tree.delete(item)
+        self.scrollbary.place(relx=0.934, rely=0.128, width=22, height=432)
+        self.scrollbarx.place(relx=0.002, rely=0.922, width=1302, height=22)
 
-    # Adiciona novos itens ao Treeview com o texto digitado
-    for i in range(1000):
-        # Aplica o estilo 'linha_par' às linhas pares
-        tree.insert('', 'end', values=(f'Item {texto} Coluna 1', f'Item {texto} Coluna 2', f'Item {texto} Coluna 3', f'Item {texto} Coluna 4', f'Item {texto} Coluna 5'), tags=('linha_par' if i % 2 == 0 else ''))
+        self.my_tree.configure(
+            columns=(
+                "sofifa_id", 
+                "short_name", 
+                "long_name", 
+                "player_positions", 
+                "nationality", 
+                "club_name", 
+                "league_name", 
+                "global_rating", 
+                "count"
+            ),
+            show='headings'  # Oculta a coluna extra
+        )
+
+        self.set_widgets()
+        self.mostrar_elementos()
+
+    def set_widgets(self):
+        # Cria as colunas
+        self.my_tree.heading("sofifa_id", text="sofifa_id")
+        self.my_tree.heading("short_name", text="short_name")
+        self.my_tree.heading("long_name", text="long_name")
+        self.my_tree.heading("player_positions", text="player_positions")
+        self.my_tree.heading("nationality", text="nationality")
+        self.my_tree.heading("club_name", text="club_name")
+        self.my_tree.heading("league_name", text="league_name")
+        self.my_tree.heading("global_rating", text="global_rating")
+        self.my_tree.heading("count", text="count")
+
+        # Cria um botão que imprime "Oi" quando clicado
+        self.button = Button(self.root, text="Print Oi", command=self.funcao)
+        self.button.place(relx=0.01, rely=0.04, width=100, height=30)  # Posiciona o botão na janela
+
+        # Cria uma caixa de texto pra digitar algo e um botão que imprime o que foi digitado
+        self.entry = Entry(self.root)
+        self.entry.place(relx=0.2, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.button2 = Button(self.root, text="Print", command=lambda: print(self.entry.get()))
+        self.button2.place(relx=0.12, rely=0.01, width=100, height=30)  # Posiciona o botão na janela
+
+
+    def mostrar_elementos(self):
+        # Cria elementos pra colocar nas linhas
+        for i in range(100):
+            if i % 2 == 0:
+                self.my_tree.insert(parent='', index='end', iid={i}, text="Parent", values=("John", "1", "1000", "123456789", f"{i}@gmail.com", "IT", "Manager", "Address"), tags='evenrow')
+            else:
+                self.my_tree.insert(parent='', index='end', iid={i}, text="Parent", values=("John", "1", "1000", "123456789", f"{i}@gmail.com", "IT", "Manager", "Address"))
+
+        # Configura a cor de fundo das linhas pares
+        self.my_tree.tag_configure('evenrow', background='#f2f2f2')
+
+    def funcao(self):
+        # Apaga os dados da tabela
+        self.my_tree.delete(*self.my_tree.get_children())
+        # Cria elementos pra colocar nas linhas
+        for i in range(100):
+            self.my_tree.insert(parent='', index='end', iid={i}, text="Parent", values=("Banana", "2", "30", "3123", f"{i}"))
 
 root = tk.Tk()
-
-# Cria um frame
-frame = tk.Frame(root)
-frame.grid()
-
-# Cria um widget Canvas e adiciona ao frame
-canvas = tk.Canvas(frame, highlightthickness=0)
-canvas.grid(row=0, column=0)
-
-# Cria um widget Treeview com mais colunas e adiciona ao Canvas
-tree = ttk.Treeview(canvas, columns=('Coluna 1', 'Coluna 2', 'Coluna 3', 'Coluna 4', 'Coluna 5'), show='headings')
-
-# Configura as colunas
-for col in tree['columns']:
-    tree.heading(col, text=col)
-    tree.column(col, width=200)  # Aumenta a largura das colunas
-
-# Define um estilo para as linhas pares
-tree.tag_configure('linha_par', background='#f2f2f2')
-
-# Adiciona mais itens ao Treeview
-for i in range(1000):
-    # Aplica o estilo 'linha_par' às linhas pares
-    tree.insert('', 'end', values=(f'Item {i} Coluna 1', f'Item {i} Coluna 2', f'Item {i} Coluna 3', f'Item {i} Coluna 4', f'Item {i} Coluna 5'), tags=('linha_par' if i % 2 == 0 else ''))
-
-# Adiciona o Treeview ao Canvas
-canvas.create_window((0,0), window=tree, anchor='nw')
-
-# Cria uma barra de rolagem horizontal e adiciona ao frame
-h_scrollbar = tk.Scrollbar(frame, orient='horizontal', command=canvas.xview)
-h_scrollbar.grid(row=1, column=0, sticky='ew')
-
-# Cria uma barra de rolagem vertical e adiciona ao frame
-v_scrollbar = tk.Scrollbar(frame, orient='vertical', command=canvas.yview)
-v_scrollbar.grid(row=0, column=1, sticky='ns')
-
-# Configura o widget Canvas para usar as barras de rolagem
-canvas.configure(xscrollcommand=h_scrollbar.set, yscrollcommand=v_scrollbar.set)
-
-def print_oi():
-    print("Oi")
-
-# Cria um botão e adiciona ao frame
-botao = tk.Button(frame, text="Clique aqui", command=print_oi)
-botao.grid(row=2, column=0, sticky='ew')
-
-# Cria um botão e adiciona ao frame
-botao = tk.Button(frame, text="Atualizar", command=atualizar)
-botao.grid(row=3, column=0, sticky='ew')
-
-# Cria um campo de entrada e adiciona ao frame
-entry = tk.Entry(frame)
-entry.grid(row=4, column=0, sticky='ew')
-
-# Cria um botão e adiciona ao frame
-botao = tk.Button(frame, text="Atualizar com texto", command=lambda:atualizar_com_texto(entry))
-botao.grid(row=5, column=0, sticky='ew')
-
-# Configura o evento de rolagem do Canvas para atualizar a região de rolagem
-def on_configure(event, canvas):
-    canvas.configure(scrollregion=canvas.bbox('all'))
-
-canvas.bind('<Configure>', lambda event: on_configure(event, canvas))
-
+app = MyApplication(root)
 root.mainloop()
