@@ -14,13 +14,12 @@ class Jogador:
         self.soma_notas = self.num_avaliacoes = self.media_global = 0
 
     def __str__(self):
-        return f'({self.id}, {self.nome_curto}, {self.posicoes}, {self.nacionalidade}, {self.clube}, {self.liga}, {self.media_global})'
+        return f'({self.id}, {self.nome_curto}, {self.nome_longo}, {self.posicoes}, {self.nacionalidade}, {self.clube}, {self.liga}, {self.media_global})'
 
 
 class Usuario(NamedTuple):
-
     id: str
-    avaliacoes: list
+    avaliacoes: list[tuple]
 
     def __str__(self):
         return f'(user_id: {self.id}, ratings: {self.avaliacoes})'
