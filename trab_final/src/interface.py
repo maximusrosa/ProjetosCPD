@@ -125,7 +125,7 @@ class MyApplication:
                 self.tree.heading(c, text=c.title())
 
             self.data.clear()
-            for player in self.base_de_dados.players_by_prefix(prefixo):
+            for player in self.base_de_dados.top_by_prefix(prefixo):
                 self.data.append((player.id, player.nome_curto, player.nome, player.posicoes, player.media_global, player.num_avaliacoes))
 
             for item in self.data:

@@ -1,6 +1,6 @@
 from hash_table import Jogador, Usuario, Tag, HashTable, TagHT
 from trie_tree import Trie
-from time import time
+from time import time, sleep
 import csv
 from math import floor
 
@@ -19,10 +19,6 @@ class FIFA_Database:
         self.tags_HT = TagHT(floor(NUM_TAGS / 5))
         self.long_names_Trie = Trie()
 
-    def __str__(self):
-        return str(self.players_HT) + '\n' + str(self.users_HT) + '\n' + str(self.tags_HT) + '\n' + str(
-            self.long_names_Trie)
-
     # ----------------------------------------- Pré-processamento ----------------------------------------- #
 
     def get_players_info(self, filename='data/players.csv'):
@@ -35,16 +31,15 @@ class FIFA_Database:
                                                nacionalidade=row[4], clube=row[5], liga=row[6]))
                 self.long_names_Trie.insert(row[2], row[0])
 
-        print("Tabela Hash de Jogadores e Árvore Trie de nomes longos construídas.")
+        print("Tabela Hash de jogadores e Árvore Trie de nomes longos construídas.")
 
     def get_rating_info(self, filename='data/rating.csv'):
-
         with open(filename, 'r') as file:
             reader = csv.reader(file)
             next(reader)
             lastIdChecked = None  # responsável por saber qual último sofifa_id visitado
 
-            print("\nConstruindo Tabela Hash de Usuários...\n")
+            print("\nConstruindo Tabela Hash de usuários...\n")
 
             for row in reader:
                 user_id = row[0]
@@ -70,7 +65,7 @@ class FIFA_Database:
                     user.avaliacoes.append((sofifa_id, rating))
                     
 
-        print("Tabela Hash de Usuários construída.")
+        print("Tabela Hash de usuários construída.")
 
         self._update_global_ratings()
         print("Médias globais atualizadas.")
@@ -92,19 +87,14 @@ class FIFA_Database:
         print("Tabela Hash de Tags construída.")
 
     def _update_global_ratings(self):
-        # start = time()
-
         for lista in self.players_HT.table:
             for jogador in lista:
                 if jogador.num_avaliacoes != 0:
                     jogador.media_global = round((jogador.soma_notas / jogador.num_avaliacoes), 6)
 
-        # end = time()
-        # print(f'Tempo para atualizar as médias globais: {(end - start) * 1000:.4f} milisegundos')
-
     # ----------------------------------------- Pesquisas ----------------------------------------- #
 
-    def players_by_prefix(self, prefix):
+    def top_by_prefix(self, prefix):
         players = [self.players_HT.get(id)
                    for id in self.long_names_Trie.starts_with(prefix)]
 
@@ -130,13 +120,13 @@ class FIFA_Database:
     def top_by_position(self, n, position):
         top_players = [(jogador.id, jogador.media_global)
                        for lista in self.players_HT.table for jogador in lista
-                       if position in jogador.posicoes and jogador.num_avaliacoes > 0]
+                       if position in jogador.posicoes and jogador.num_avaliacoes > 1000]
 
         top_players.sort(key=lambda x: x[1], reverse=True)
 
         return top_players[:n]
 
-    def players_by_tags(self, tags):
+    def top_by_tags(self, tags):
         # Create a set of all player ids that have all the tags
         player_ids = set.intersection(*[self.tags_HT.get(tag).ocorrencias
                                         for tag in tags])
@@ -199,7 +189,7 @@ def count_unique_users(filename='data/rating.csv'):
 # --------------------------------------------------------------------------------------------------------- #
 
 def main():
-    # Pré-processamento
+    # Estruturas
     start = time()
 
     fifa_db = FIFA_Database()
@@ -213,19 +203,40 @@ def main():
     end = time()
 
     print(
-        f'\nTempo de construção das estruturas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos')
+        f'\nTempo de construção das estruturas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos\n')
 
 
-    # Testando as funções de pesquisa
-    print(fifa_db.players_by_prefix('Lionel'))
-    print(fifa_db.top_by_user('130642'))
-    print(fifa_db.top_by_position(10, 'ST'))
-    print(fifa_db.players_by_tags(['Dribbler']))
+    # Consultas
+    print("Jogadores com nome longo começando com 'Fer':")
+    for player in fifa_db.top_by_prefix('Fer'):
+        print(player)
+
+    print('\n')
+    sleep(5)
+
+    print("20 jogadores mais revisados pelo usuário '106180':")
+    for tuple in fifa_db.top_by_user('106180'):
+        print(fifa_db.players_HT.get(tuple[0]))
+
+    print('\n')
+    sleep(5)
+
+    print("10 melhores atacantes:")
+    for tuple in fifa_db.top_by_position(10, 'ST'):
+        print(fifa_db.players_HT.get(tuple[0]))
+
+    print('\n')
+    sleep(5)
+
+    print("Jogadores com as tags 'Brazil' e 'Dribbler':")
+    for player in fifa_db.top_by_tags(['Brazil', 'Dribbler']):
+        print(player)
+
 
     # Testando as funções hash / tamanho das tabelas
     #fifa_db.players_HT.cons_stats()
-    fifa_db.users_HT.cons_stats()
-    fifa_db.tags_HT.cons_stats()
+    #fifa_db.users_HT.cons_stats()
+    #fifa_db.tags_HT.cons_stats()
 
     # Salvando os tabelas
     #with open('output/players_ht.txt', 'w') as file:
