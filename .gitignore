@@ -8,3 +8,4 @@ trab_final/data/rating_10m.csv
 trab_final/data/rating_1m.csv
 .idea/csv-editor.xml
 trab_final/src/teste.py
+*.pyc

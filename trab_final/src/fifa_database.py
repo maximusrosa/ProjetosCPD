@@ -7,8 +7,8 @@ from math import floor
 # Constantes
 NUM_JOGADORES = 18944
 #NUM_USUARIOS = 9642  # pro minirating de 10k
-NUM_USUARIOS = 138425  # pro rating de 1M
-#NUM_USUARIOS = 138493  # pro rating de 10M / 24M
+#NUM_USUARIOS = 138425  # pro rating de 1M
+NUM_USUARIOS = 138493  # pro rating de 10M / 24M
 NUM_TAGS = 937
 
 
@@ -25,7 +25,7 @@ class FIFA_Database:
 
     # ----------------------------------------- Pré-processamento ----------------------------------------- #
 
-    def get_players_info(self, filename='../data/players.csv'):
+    def get_players_info(self, filename='data/players.csv'):
         with open(filename, 'r') as file:
             reader = csv.reader(file)
             next(reader)  # Pula o cabeçalho
@@ -37,14 +37,14 @@ class FIFA_Database:
 
         print("Tabela Hash de Jogadores e Árvore Trie de nomes longos construídas.")
 
-    def get_rating_info(self, filename='../data/rating.csv'):
+    def get_rating_info(self, filename='data/rating.csv'):
+
         with open(filename, 'r') as file:
             reader = csv.reader(file)
             next(reader)
+            lastIdChecked = None  # responsável por saber qual último sofifa_id visitado
 
             print("\nConstruindo Tabela Hash de Usuários...\n")
-
-            lastIdChecked = None  # responsável por saber qual último sofifa_id visitado
 
             for row in reader:
                 user_id = row[0]
@@ -60,22 +60,22 @@ class FIFA_Database:
 
                 else:
                     player.soma_notas += rating
-                    player.num_avaliacoes += 1
+                    player.num_avaliacoes += 1         
 
                 user = self.users_HT.get(user_id)
 
-                if user is not None:
-                    user.avaliacoes.append(Usuario.Avaliacao(sofifa_id, rating))
-
+                if user is None:
+                    self.users_HT.insert(Usuario(user_id, [(sofifa_id, rating)]))
                 else:
-                    self.users_HT.insert(Usuario(user_id, [Usuario.Avaliacao(sofifa_id, rating)]))
+                    user.avaliacoes.append((sofifa_id, rating))
+                    
 
         print("Tabela Hash de Usuários construída.")
 
         self._update_global_ratings()
         print("Médias globais atualizadas.")
 
-    def get_tags_info(self, filename='../data/tags.csv'):
+    def get_tags_info(self, filename='data/tags.csv'):
         with open(filename, 'r') as file:
             reader = csv.reader(file)
             next(reader)
@@ -118,7 +118,7 @@ class FIFA_Database:
 
         # Create a list of tuples containing the player's id, the user's rating and the player's global average
         top_rated_players = [
-            (avaliacao.id_jogador, avaliacao.nota, self.players_HT.get(avaliacao.id_jogador).media_global)
+            (avaliacao[0], avaliacao[1], self.players_HT.get(avaliacao[0]).media_global)
             for avaliacao in user.avaliacoes]
 
         # Sort the list in descending order by user_rating and then by global_average
@@ -170,7 +170,7 @@ def find_user_with_most_reviews(hash_table):
     return user_with_most_reviews
 
 
-def count_unique_tags(filename='../data/tags.csv'):
+def count_unique_tags(filename='data/tags.csv'):
     unique_tags = set()
 
     with open(filename, 'r') as file:
@@ -183,7 +183,7 @@ def count_unique_tags(filename='../data/tags.csv'):
     return len(unique_tags)
 
 
-def count_unique_users(filename='../data/rating.csv'):
+def count_unique_users(filename='data/rating.csv'):
     unique_users = set()
 
     with open(filename, 'r') as file:
@@ -208,27 +208,35 @@ def main():
 
     fifa_db.get_tags_info()
 
-    #fifa_db.get_rating_info('../data/rating_1m.csv')
+    fifa_db.get_rating_info('data/rating.csv')
 
     end = time()
 
     print(
         f'\nTempo de construção das estruturas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos')
 
+
+    # Testando as funções de pesquisa
+    print(fifa_db.players_by_prefix('Lionel'))
+    print(fifa_db.top_by_user('130642'))
+    print(fifa_db.top_by_position(10, 'ST'))
+    print(fifa_db.players_by_tags(['Dribbler']))
+
     # Testando as funções hash / tamanho das tabelas
-    # fifa_db.players_HT.cons_stats()
-    # fifa_db.users_HT.cons_stats()
-    # fifa_db.tags_HT.cons_stats()
+    #fifa_db.players_HT.cons_stats()
+    fifa_db.users_HT.cons_stats()
+    fifa_db.tags_HT.cons_stats()
 
     # Salvando os tabelas
-    #with open('../output/players_ht.txt', 'w') as file:
-        #file.write(str(fifa_db.players_HT))
+    #with open('output/players_ht.txt', 'w') as file:
+    #    file.write(str(fifa_db.players_HT))
 
-    #with open('../output/users_ht.txt', 'w') as file:
-        #file.write(str(fifa_db.users_HT))
+    # Acho que tem tantos elementos que buga o vscode e não salva
+    #with open('output/users_ht.txt', 'w') as file:
+    #    file.write(str(fifa_db.users_HT))
 
-    #with open('../output/tags_ht.txt', 'w') as file:
-        #file.write(str(fifa_db.tags_HT))
+    #with open('output/tags_ht.txt', 'w') as file:
+    #    file.write(str(fifa_db.tags_HT))
 
 
 
