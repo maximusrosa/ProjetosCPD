@@ -9,30 +9,36 @@ ID = '130642'  # id do usuário com mais avaliações
 TAMANHO_TABELA = 7993
 
 def main():
+    # Pré-processamento
+    start = time()
+
     fifa_db = FIFA_Database()
 
-    start = time()
     fifa_db.get_players_info()
-    fifa_db.get_minirating_info("data/minirating.csv")
-    fifa_db._update_global_ratings()  # vamos ver se isso aqui aumenta significativamente quando usarmos o minirating de 24M
+
     fifa_db.get_tags_info()
+
+    fifa_db.get_rating_info('data/rating.csv')
+
     end = time()
 
     print(
-        f'Tempo de construção das estruturas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos\n')
+        f'\nTempo de construção das estruturas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos')
 
-
+    # Testando as funções hash / tamanho das tabelas
+    # fifa_db.players_HT.cons_stats()
+    # fifa_db.users_HT.cons_stats()
     # fifa_db.tags_HT.cons_stats()
 
     # Salvando os tabelas
-    # with open('../output/players_ht.txt', 'w') as file:
-    # file.write(str(fifa_db.players_HT))
+    #with open('output/players_ht.txt', 'w') as file:
+        #file.write(str(fifa_db.players_HT))
 
-    # with open('../output/users_ht.txt', 'w') as file:
-    # file.write(str(fifa_db.users_HT))
+    #with open('output/users_ht.txt', 'w') as file:
+        #file.write(str(fifa_db.users_HT))
 
-    with open('output/tags_ht.txt', 'w', encoding='utf-8') as file:
-        file.write(str(fifa_db.tags_HT))
+    #with open('output/tags_ht.txt', 'w') as file:
+        #file.write(str(fifa_db.tags_HT))
 
     master = cria_interface()
     app = Application(master, fifa_db)

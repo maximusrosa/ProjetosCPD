@@ -18,15 +18,9 @@ class Jogador:
 
 
 class Usuario(NamedTuple):
-    class Avaliacao(NamedTuple):
-        player_id: str
-        nota: float
-
-        def __str__(self):
-            return f'(player_id: {self.player_id}, nota: {self.nota})'
 
     id: str
-    avaliacoes: list[Avaliacao]
+    avaliacoes: list
 
     def __str__(self):
         return f'(user_id: {self.id}, ratings: {self.avaliacoes})'
