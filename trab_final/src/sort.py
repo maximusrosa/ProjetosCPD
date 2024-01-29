@@ -27,26 +27,19 @@ def quicksort(lst, first, last):
     if first >= last:
         return
     else:
-        # Continue with the quicksort algorithm
         splitpoint = partition(lst, first, last, "mediana")
-
         quicksort(lst, first, splitpoint - 1)
         quicksort(lst, splitpoint + 1, last)
-
     return lst
-
 
 def partition(lst, first, last, pivot_choice):
     if pivot_choice == "aleatorio":
         pivot_index = randint(first, last)
         lst[first], lst[pivot_index] = lst[pivot_index], lst[first]
-        pivot_value = lst[first]
-
+        pivot_value = lst[first].media_global
     elif pivot_choice == "mediana":
         pivot_value, pivot_index = mediana_de_3(lst, first, last)
-
         lst[first], lst[pivot_index] = lst[pivot_index], lst[first]
-
     else:
         assert False, "Escolha de pivô inválida."
 
@@ -55,31 +48,23 @@ def partition(lst, first, last, pivot_choice):
     done = False
 
     while not done:
-        while leftmark <= rightmark and lst[leftmark] <= pivot_value:
+        while leftmark <= rightmark and lst[leftmark].media_global >= pivot_value:
             leftmark = leftmark + 1
-        while lst[rightmark] >= pivot_value and rightmark >= leftmark:
+        while lst[rightmark].media_global < pivot_value and rightmark >= leftmark:
             rightmark = rightmark - 1
         if rightmark < leftmark:
             done = True
         else:
             lst[leftmark], lst[rightmark] = lst[rightmark], lst[leftmark]
 
-    # coloca o pivô na posição correta
     lst[first], lst[rightmark] = lst[rightmark], lst[first]
 
     return rightmark
 
-
 def mediana_de_3(lst, first, last):
     middle = (first + last) // 2
-
-    # Create a list of tuples where each tuple is (value, index)
-    candidates = [(lst[first], first), (lst[middle], middle), (lst[last], last)]
-
-    # Sort the list of tuples by the first element of each tuple (the value)
-    candidates.sort(key=lambda x: x[0])
-
-    # Return the second element of the second tuple (the median value and its index)
+    candidates = [(lst[first].media_global, first), (lst[middle].media_global, middle), (lst[last].media_global, last)]
+    candidates.sort(key=lambda x: x[0], reverse=True)
     return candidates[1]
 
 
@@ -92,8 +77,8 @@ def merge(lst, left, mid, right):
     sorted_index = left
 
     while left_copy_index < len(left_copy) and right_copy_index < len(right_copy):
-
-        if left_copy[left_copy_index] <= right_copy[right_copy_index]:
+        # Como o item sempre é uma tupla, compare item[0]
+        if left_copy[left_copy_index][0] <= right_copy[right_copy_index][0]:
             lst[sorted_index] = left_copy[left_copy_index]
             left_copy_index = left_copy_index + 1
         else:
@@ -111,8 +96,7 @@ def merge(lst, left, mid, right):
         lst[sorted_index] = right_copy[right_copy_index]
         right_copy_index = right_copy_index + 1
         sorted_index = sorted_index + 1
-
-
+        
 def merge_sort_bu(lst):
     size = 1
     while size < len(lst):

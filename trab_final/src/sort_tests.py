@@ -1,4 +1,6 @@
-from sort import *
+from sort import insertion_sort, merge_sort_bu, quicksort, mediana_de_3, random_lst
+import random
+
 
 def test_mediana_de_3():
     assert mediana_de_3([54, 26, 93, 17, 77, 31, 44, 55, 20], 0, 9 - 1) == (54, 0)
@@ -21,8 +23,9 @@ def test_mediana_de_3():
 
 def test_quicksort():
     for i in range(100):
-        lst = random_lst(1000)
-        assert quicksort(lst, 0, 1000 - 1) == sorted(lst)
+        # Supondo que temos uma função `random_jogadores` que gera uma lista de objetos Jogador aleatórios
+        lst = random_jogadores(1000)
+        assert quicksort(lst, 0, 1000 - 1) == sorted(lst, key=lambda jogador: jogador.media_global, reverse=True)
 
 def test_insertion_sort():
     for i in range(100):
@@ -33,6 +36,5 @@ def test_merge_sort():
     for i in range(10):
         lst = random_lst(1000)
         assert merge_sort_bu(lst) == sorted(lst)
-
 
 

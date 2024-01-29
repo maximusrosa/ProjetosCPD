@@ -3,6 +3,7 @@ from trie_tree import Trie
 from time import time, sleep
 import csv
 from math import floor
+from sort import quicksort, merge_sort_bu
 
 # Constantes
 NUM_JOGADORES = 18944
@@ -99,32 +100,9 @@ class FIFA_Database:
                    for id in self.long_names_Trie.starts_with(prefix)]
 
         # Sort the list of players by their global average
-        players.sort(key=lambda x: x.media_global, reverse=True)
+        quicksort(players, 0, len(players) - 1)
 
         return players
-
-    def top_by_user(self, user_id):
-        user = self.users_HT.get(user_id)
-
-        # Create a list of tuples containing the player's id, the user's rating and the player's global average
-        top_rated_players = [
-            (avaliacao[0], avaliacao[1], self.players_HT.get(avaliacao[0]).media_global)
-            for avaliacao in user.avaliacoes]
-
-        # Sort the list in descending order by user_rating and then by global_average
-        top_rated_players.sort(key=lambda x: (x[1], x[2]), reverse=True)
-
-        # Esta pesquisa deve retornar a lista com no máximo 20 jogadores revisados pelo usuário
-        return top_rated_players[:20]
-
-    def top_by_position(self, n, position):
-        top_players = [(jogador.id, jogador.media_global)
-                       for lista in self.players_HT.table for jogador in lista
-                       if position in jogador.posicoes and jogador.num_avaliacoes > 1000]
-
-        top_players.sort(key=lambda x: x[1], reverse=True)
-
-        return top_players[:n]
 
     def top_by_tags(self, tags):
         # Create a set of all player ids that have all the tags
@@ -133,12 +111,37 @@ class FIFA_Database:
 
         # Create a list of players with the given ids
         players = [self.players_HT.get(player_id)
-                   for player_id in player_ids]
+                    for player_id in player_ids]
 
         # Sort the list of players by their global average
-        players.sort(key=lambda x: x.media_global, reverse=True)
+        quicksort(players, 0, len(players) - 1)
 
         return players
+
+    def top_by_position(self, n, position):
+        players = [jogador for lista in self.players_HT.table for jogador in lista
+                                if position in jogador.posicoes and jogador.num_avaliacoes > 0]
+
+        quicksort(players, 0, len(players) - 1)
+
+        return players[:n]
+
+
+    ############################################################################################################
+
+    def top_by_user(self, user_id):
+        user = self.users_HT.get(user_id)
+
+        # create a list of players that the user has rated
+        jogadores_avaliados = [self.players_HT.get(sofifa_id)
+                                 for sofifa_id, rating in user.avaliacoes]
+
+        # ordenação pela média global (lista de jogadores)
+        quicksort(jogadores_avaliados, 0, len(jogadores_avaliados) - 1)
+
+        return jogadores_avaliados
+
+
 
 
 # ----------------------------------------- Funções auxiliares ----------------------------------------- #
@@ -198,7 +201,7 @@ def main():
 
     fifa_db.get_tags_info()
 
-    fifa_db.get_rating_info('data/rating.csv')
+    fifa_db.get_rating_info('data/minirating.csv')
 
     end = time()
 
@@ -206,50 +209,9 @@ def main():
         f'\nTempo de construção das estruturas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos\n')
 
 
-    # Consultas
-    print("Jogadores com nome longo começando com 'Fer':")
-    for player in fifa_db.top_by_prefix('Fer'):
-        print(player)
-
-    print('\n')
-    sleep(5)
-
-    print("20 jogadores mais revisados pelo usuário '106180':")
-    for tuple in fifa_db.top_by_user('106180'):
-        print(fifa_db.players_HT.get(tuple[0]))
-
-    print('\n')
-    sleep(5)
-
-    print("10 melhores atacantes:")
-    for tuple in fifa_db.top_by_position(10, 'ST'):
-        print(fifa_db.players_HT.get(tuple[0]))
-
-    print('\n')
-    sleep(5)
-
-    print("Jogadores com as tags 'Brazil' e 'Dribbler':")
-    for player in fifa_db.top_by_tags(['Brazil', 'Dribbler']):
-        print(player)
-
-
-    # Testando as funções hash / tamanho das tabelas
-    #fifa_db.players_HT.cons_stats()
-    #fifa_db.users_HT.cons_stats()
-    #fifa_db.tags_HT.cons_stats()
-
-    # Salvando os tabelas
-    #with open('output/players_ht.txt', 'w') as file:
-    #    file.write(str(fifa_db.players_HT))
-
-    # Acho que tem tantos elementos que buga o vscode e não salva
-    #with open('output/users_ht.txt', 'w') as file:
-    #    file.write(str(fifa_db.users_HT))
-
-    #with open('output/tags_ht.txt', 'w') as file:
-    #    file.write(str(fifa_db.tags_HT))
-
-
+    # teste a função merge_sort_bu com uma lista de tuplas de jogadores e suas notas:
+    for jogador in fifa_db.top_by_user('130642'):
+        print(jogador)
 
 if __name__ == '__main__':
     main()
