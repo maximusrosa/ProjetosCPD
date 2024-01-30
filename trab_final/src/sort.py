@@ -1,4 +1,4 @@
-from hash_table import Jogador
+from src.hash_table import Jogador
 
 
 def quicksort(lst: list[Jogador]) -> list[Jogador]:

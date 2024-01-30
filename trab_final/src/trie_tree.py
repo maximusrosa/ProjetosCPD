@@ -1,4 +1,4 @@
-from hash_table import HashTable
+from src.hash_table import HashTable
 from typing import NamedTuple
 
 class EdgeHT(HashTable):

@@ -1,9 +1,9 @@
-from hash_table import Jogador, Usuario, Tag, HashTable, TagHT
-from trie_tree import Trie
+from src.hash_table import Jogador, Usuario, Tag, HashTable, TagHT
+from src.trie_tree import Trie
 from time import time
 import csv
 from math import floor
-from sort import quicksort, merge_sort
+from src.sort import quicksort, merge_sort
 
 # Constantes
 NUM_JOGADORES = 18944
@@ -113,17 +113,39 @@ class FIFA_Database:
         # Sort the list of players by their global average
         return quicksort(players)
 
+    def top_by_position(self, n, position):
+        players = [jogador for lista in self.players_HT.table for jogador in lista
+                                if position in jogador.posicoes and jogador.num_avaliacoes > 1000]
+
+        return quicksort(players)[:n]
+
     def top_by_user(self, user_id):
         user = self.users_HT.get(user_id)
 
         # Crie uma lista de tuplas (Jogador, rating) com as avaliações do usuário
         tuplas = [(self.players_HT.get(sofifa_id), rating) for sofifa_id, rating in user.avaliacoes]
 
-        # Ordena a lista de tuplas pelo rating e depois pela média global do jogador 
-        # em ordem decrescente e cria outra lista com os 20 primeiros jogadores
-        players = [jogador for jogador, rating in merge_sort(tuplas)[:20]]
+        return merge_sort(tuplas)[:20]
 
-        return players
+    
+    def top_by_club(self, club):
+        players = [jogador for lista in self.players_HT.table for jogador in lista
+                                if club == jogador.clube and jogador.num_avaliacoes > 1000]
+
+        return quicksort(players)
+    
+    def top_by_nationality(self, nationality):
+        players = [jogador for lista in self.players_HT.table for jogador in lista
+                                if nationality == jogador.nacionalidade and jogador.num_avaliacoes > 1000]
+        
+        return quicksort(players)
+    
+    def top_by_league(self, league):
+        players = [jogador for lista in self.players_HT.table for jogador in lista
+                                if league == jogador.liga and jogador.num_avaliacoes > 1000]
+        
+        return quicksort(players)
+
 
 # ----------------------------------------- Funções auxiliares ----------------------------------------- #
 
@@ -191,8 +213,8 @@ def main():
 
     # Consultas
     print("20 jogadores mais bem avaliados pelo usuário '106180':")
-    for player in fifa_db.top_by_user('106180'):
-        print(player)
+    for player, rating in fifa_db.top_by_user('106180'):
+        print(f"{player}, {rating}")
 
 
 

@@ -9,7 +9,7 @@ import csv
 class MyApplication:
     def __init__(self, root, base_de_dados):
         self.root = root
-        self.root.geometry('1400x520')
+        self.root.geometry('1400x620')
         self.root.title("Trabalho Final CPD - Thiago Vito e Maximus Borges")
         self.base_de_dados = base_de_dados
 
@@ -20,14 +20,14 @@ class MyApplication:
         self.scrollbary = Scrollbar(root, orient=tk.VERTICAL)
 
         self.my_tree = ttk.Treeview(root)
-        self.my_tree.place(relx=0.01, rely=0.128, width=1292, height=410)
+        self.my_tree.place(relx=0.01, rely=0.2, width=1292, height=410)
         self.my_tree.configure(yscrollcommand=self.scrollbary.set, xscrollcommand=self.scrollbarx.set)
         self.my_tree.configure(selectmode="extended")
 
         self.scrollbary.configure(command=self.my_tree.yview)
         self.scrollbarx.configure(command=self.my_tree.xview)
 
-        self.scrollbary.place(relx=0.934, rely=0.128, width=22, height=432)
+        self.scrollbary.place(relx=0.934, rely=0.2, width=22, height=432)
         self.scrollbarx.place(relx=0.002, rely=0.922, width=1302, height=22)
 
         self.my_tree.configure(
@@ -76,29 +76,48 @@ class MyApplication:
 
         # Cria uma entrada de texto
         self.entry = Entry(self.root)
-        self.entry.place(relx=0.22, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.entry.place(relx=0.245, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
         self.button = Button(self.root, text="Procura por prefixo", command=lambda: self.procura_por_prefixo(self.entry.get()))
-        self.button.place(relx=0.12, rely=0.04, width=130, height=30)  # Posiciona o botão na janela
+        self.button.place(relx=0.145, rely=0.04, width=130, height=30)  # Posiciona o botão na janela
 
         # Cria uma entrada de texto
         self.entry2 = Entry(self.root)
-        self.entry2.place(relx=0.41, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.entry2.place(relx=0.445, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
         self.button2 = Button(self.root, text="Procura por usuário", command=lambda: self.procura_por_usuario(self.entry2.get()))
-        self.button2.place(relx=0.31, rely=0.04, width=130, height=30)  # Posiciona o botão na janela
+        self.button2.place(relx=0.345, rely=0.04, width=130, height=30)  # Posiciona o botão na janela
 
         # Cria uma entrada de texto
         self.entry3 = Entry(self.root)
-        self.entry3.place(relx=0.60, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.entry3.place(relx=0.645, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
         self.entry4 = Entry(self.root)
-        self.entry4.place(relx=0.66, rely=0.04, width=25, height=30)  # Posiciona a caixa de texto na janela
+        self.entry4.place(relx=0.705, rely=0.04, width=25, height=30)  # Posiciona a caixa de texto na janela
         self.button3 = Button(self.root, text="Procura por posição", command=lambda: self.procura_por_posicao(self.entry4.get(), self.entry3.get()))
-        self.button3.place(relx=0.50, rely=0.04, width=130, height=30)  # Posiciona o botão na janela
+        self.button3.place(relx=0.545, rely=0.04, width=130, height=30)  # Posiciona o botão na janela
 
         # Cria uma entrada de texto
         self.entry5 = Entry(self.root)
-        self.entry5.place(relx=0.80, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.entry5.place(relx=0.14, rely=0.12, width=100, height=30)  # Posiciona a caixa de texto na janela
         self.button5 = Button(self.root, text="Procura por tags", command=lambda: self.procura_por_tags(self.entry5.get()))
-        self.button5.place(relx=0.70, rely=0.04, width=130, height=30)  # Posiciona o botão na janela
+        self.button5.place(relx=0.04, rely=0.12, width=130, height=30)  # Posiciona o botão na janela
+
+        # Cria uma entrada de texto
+        self.entry6 = Entry(self.root)
+        self.entry6.place(relx=0.34, rely=0.12, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.button6 = Button(self.root, text="Procura por clube", command=lambda: self.procura_por_clube(self.entry6.get()))
+        self.button6.place(relx=0.24, rely=0.12, width=130, height=30)  # Posiciona o botão na janela
+
+        # Cria uma entrada de texto
+        self.entry7 = Entry(self.root)
+        self.entry7.place(relx=0.54, rely=0.12, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.button7 = Button(self.root, text="Procura por país", command=lambda: self.procura_por_nacionalidade(self.entry7.get()))
+        self.button7.place(relx=0.44, rely=0.12, width=130, height=30)  # Posiciona o botão na janela
+
+        # Cria uma entrada de texto
+        self.entry8 = Entry(self.root)
+        self.entry8.place(relx=0.74, rely=0.12, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.button8 = Button(self.root, text="Procura por liga", command=lambda: self.procura_por_liga(self.entry8.get()))
+        self.button8.place(relx=0.64, rely=0.12, width=130, height=30)  # Posiciona o botão na janela
+
 
     def procura_por_prefixo(self, prefixo):
 
@@ -130,18 +149,17 @@ class MyApplication:
         response = messagebox.askyesno("Confirmação", f"Buscar pelo usuário {usuario}?")
         if response:
             try:
-                avaliacoes = self.base_de_dados.top_by_user(usuario)
+                lista = self.base_de_dados.top_by_user(usuario)
             except Exception:
                 messagebox.showerror("Erro", "Usuário não encontrado")
                 return
 
             self.limpa_tabela()
-            for i, avaliacao in enumerate(avaliacoes):
-                player = self.base_de_dados.players_HT.get(avaliacao[0])
+            for i, (player, rating) in enumerate(lista):
                 if i % 2 == 0:
-                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes, avaliacao[1]), tags=('evenrow',))
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes, rating), tags=('evenrow',))
                 else:
-                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes, avaliacao[1]))
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes, rating))
 
         else:
             return
@@ -220,6 +238,23 @@ class MyApplication:
                     self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes), tags=('evenrow',))
                 else:
                     self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes))
+
+    def procura_por_liga(self, liga):
+                
+        if not isinstance(liga, str) or liga == '':
+            messagebox.showerror("Erro", "Digite uma nacionalidade válida")
+            return
+        
+        response = messagebox.askyesno("Confirmação", f"Buscar pela liga {liga}?")
+        if response:
+            self.limpa_tabela()
+            for i, player in enumerate(self.base_de_dados.top_by_league(liga)):
+                if i % 2 == 0:
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes), tags=('evenrow',))
+                else:
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes))
+
+
 
     def limpa_tabela(self):
         self.my_tree.delete(*self.my_tree.get_children())

@@ -9,3 +9,4 @@ trab_final/data/rating_1m.csv
 .idea/csv-editor.xml
 trab_final/src/teste.py
 *.pyc
+trab_final/src/__pycache__/fifa_database.cpython-311.pyc
