@@ -1,14 +1,14 @@
 from hash_table import Jogador, Usuario, Tag, HashTable, TagHT
 from trie_tree import Trie
-from time import time, sleep
+from time import time
 import csv
 from math import floor
-from sort import quicksort, merge_sort_bu
+from sort import quicksort, merge_sort
 
 # Constantes
 NUM_JOGADORES = 18944
 #NUM_USUARIOS = 9642  # pro minirating de 10k
-#NUM_USUARIOS = 138425  # pro rating de 1M
+# NUM_USUARIOS = 138425  # pro rating de 1M
 NUM_USUARIOS = 138493  # pro rating de 10M / 24M
 NUM_TAGS = 937
 
@@ -25,7 +25,7 @@ class FIFA_Database:
     def get_players_info(self, filename='data/players.csv'):
         with open(filename, 'r') as file:
             reader = csv.reader(file)
-            next(reader)  # Pula o cabeçalho
+            next(reader)
 
             for row in reader:
                 self.players_HT.insert(Jogador(id=row[0], nome_curto=row[1], nome_longo=row[2], posicoes=row[3],
@@ -56,7 +56,7 @@ class FIFA_Database:
 
                 else:
                     player.soma_notas += rating
-                    player.num_avaliacoes += 1         
+                    player.num_avaliacoes += 1
 
                 user = self.users_HT.get(user_id)
 
@@ -64,7 +64,6 @@ class FIFA_Database:
                     self.users_HT.insert(Usuario(user_id, [(sofifa_id, rating)]))
                 else:
                     user.avaliacoes.append((sofifa_id, rating))
-                    
 
         print("Tabela Hash de usuários construída.")
 
@@ -77,7 +76,6 @@ class FIFA_Database:
             next(reader)
 
             for row in reader:
-                # Atualização da Tabela de Tags
                 tag = self.tags_HT.get(row[2])
 
                 if tag is None:
@@ -96,13 +94,12 @@ class FIFA_Database:
     # ----------------------------------------- Pesquisas ----------------------------------------- #
 
     def top_by_prefix(self, prefix):
+        # Create a list of players with the given prefix
         players = [self.players_HT.get(id)
                    for id in self.long_names_Trie.starts_with(prefix)]
 
         # Sort the list of players by their global average
-        quicksort(players, 0, len(players) - 1)
-
-        return players
+        return quicksort(players)
 
     def top_by_tags(self, tags):
         # Create a set of all player ids that have all the tags
@@ -111,38 +108,22 @@ class FIFA_Database:
 
         # Create a list of players with the given ids
         players = [self.players_HT.get(player_id)
-                    for player_id in player_ids]
+                   for player_id in player_ids]
 
         # Sort the list of players by their global average
-        quicksort(players, 0, len(players) - 1)
-
-        return players
-
-    def top_by_position(self, n, position):
-        players = [jogador for lista in self.players_HT.table for jogador in lista
-                                if position in jogador.posicoes and jogador.num_avaliacoes > 0]
-
-        quicksort(players, 0, len(players) - 1)
-
-        return players[:n]
-
-
-    ############################################################################################################
+        return quicksort(players)
 
     def top_by_user(self, user_id):
         user = self.users_HT.get(user_id)
 
-        # create a list of players that the user has rated
-        jogadores_avaliados = [self.players_HT.get(sofifa_id)
-                                 for sofifa_id, rating in user.avaliacoes]
+        # Crie uma lista de tuplas (Jogador, rating) com as avaliações do usuário
+        tuplas = [(self.players_HT.get(sofifa_id), rating) for sofifa_id, rating in user.avaliacoes]
 
-        # ordenação pela média global (lista de jogadores)
-        quicksort(jogadores_avaliados, 0, len(jogadores_avaliados) - 1)
+        # Ordena a lista de tuplas pelo rating e depois pela média global do jogador 
+        # em ordem decrescente e cria outra lista com os 20 primeiros jogadores
+        players = [jogador for jogador, rating in merge_sort(tuplas)[:20]]
 
-        return jogadores_avaliados
-
-
-
+        return players
 
 # ----------------------------------------- Funções auxiliares ----------------------------------------- #
 
@@ -201,17 +182,19 @@ def main():
 
     fifa_db.get_tags_info()
 
-    fifa_db.get_rating_info('data/minirating.csv')
+    fifa_db.get_rating_info('data/rating.csv')
 
     end = time()
 
     print(
         f'\nTempo de construção das estruturas: {end - start:.2f} segundos ou {(end - start) * 1000:.2f} milisegundos\n')
 
+    # Consultas
+    print("20 jogadores mais bem avaliados pelo usuário '106180':")
+    for player in fifa_db.top_by_user('106180'):
+        print(player)
 
-    # teste a função merge_sort_bu com uma lista de tuplas de jogadores e suas notas:
-    for jogador in fifa_db.top_by_user('130642'):
-        print(jogador)
+
 
 if __name__ == '__main__':
     main()
