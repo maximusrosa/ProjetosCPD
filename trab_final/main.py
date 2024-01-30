@@ -1,8 +1,11 @@
 from src.hash_table import HashTable
 from src.fifa_database import FIFA_Database
-from src.interface import Application, cria_interface
+from src.interface import MyApplication
 
 from time import time
+
+from tkinter import *
+import tkinter as tk
 
 # Constantes
 ID = '130642'  # id do usuário com mais avaliações
@@ -18,7 +21,7 @@ def main():
 
     fifa_db.get_tags_info()
 
-    fifa_db.get_rating_info('data/rating.csv')
+    fifa_db.get_rating_info('data/minirating.csv')
 
     end = time()
 
@@ -40,8 +43,9 @@ def main():
     #with open('output/tags_ht.txt', 'w') as file:
         #file.write(str(fifa_db.tags_HT))
 
-    master = cria_interface()
-    app = Application(master, fifa_db)
-    app.mainloop()
+    # Interface gráfica
+    root = tk.Tk()
+    MyApplication(root, fifa_db)
+    root.mainloop()
 
 main()

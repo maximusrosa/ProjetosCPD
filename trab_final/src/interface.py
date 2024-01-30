@@ -1,37 +1,17 @@
 from src.fifa_database import FIFA_Database
-import csv
+
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-
-import csv, time
-
-def cria_interface():
-
-    master = tk.Tk()  # Cria a interface
-
-    # Muda o nome da janela
-    master.title("Trabalho Final CPD - Thiago Vito e Maximus Borges")
-    screen_width = master.winfo_screenwidth()  # Largura da tela
-    master.geometry(f"{screen_width - 100}x310")  # Tamanho da janela
-    # master.configure(bg='white')  # Define a cor de fundo da janela para branco
-
-    master.dataCols = ('', '', '', '', '', '', '')
-    master.tree = ttk.Treeview(columns=master.dataCols, show='headings')
-    master.tree.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
-
-    # Barra de rolagem
-    ysb = ttk.Scrollbar(orient=tk.VERTICAL, command=master.tree.yview)
-    master.tree.configure(yscrollcommand=ysb.set)
-    ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
-
-    return master
-
+from tkinter import *
+import csv
 
 class MyApplication:
-    def __init__(self, root):
+    def __init__(self, root, base_de_dados):
         self.root = root
         self.root.geometry('1400x520')
+        self.root.title("Trabalho Final CPD - Thiago Vito e Maximus Borges")
+        self.base_de_dados = base_de_dados
 
         self.style = ttk.Style()
         self.style.configure("Treeview.Heading", font=("yu gothic vi", 10, "bold"))
@@ -60,46 +40,65 @@ class MyApplication:
                 "club_name", 
                 "league_name", 
                 "global_rating", 
-                "count"
+                "count",
+                "rating"
             ),
             show='headings'  # Oculta a coluna extra
         )
-
-        self.set_widgets()
-        self.mostrar_elementos()
-
-    def set_widgets(self):
-        # Cria as colunas
-        self.my_tree.heading("sofifa_id", text="sofifa_id")
-        self.my_tree.heading("short_name", text="short_name")
-        self.my_tree.heading("long_name", text="long_name")
-        self.my_tree.heading("player_positions", text="player_positions")
-        self.my_tree.heading("nationality", text="nationality")
-        self.my_tree.heading("club_name", text="club_name")
-        self.my_tree.heading("league_name", text="league_name")
-        self.my_tree.heading("global_rating", text="global_rating")
-        self.my_tree.heading("count", text="count")
-
-        # Cria um botão que imprime "Oi" quando clicado
-        self.button = Button(self.root, text="Print Oi", command=self.funcao)
-        self.button.place(relx=0.01, rely=0.04, width=100, height=30)  # Posiciona o botão na janela
-
-        # Cria uma caixa de texto pra digitar algo e um botão que imprime o que foi digitado
-        self.entry = Entry(self.root)
-        self.entry.place(relx=0.2, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
-        self.button2 = Button(self.root, text="Print", command=lambda: print(self.entry.get()))
-        self.button2.place(relx=0.12, rely=0.01, width=100, height=30)  # Posiciona o botão na janela
-
-    def mostrar_elementos(self):
-        # Cria elementos pra colocar nas linhas
-        for i in range(100):
-            if i % 2 == 0:
-                self.my_tree.insert(parent='', index='end', iid={i}, text="Parent", values=("John", "1", "1000", "123456789", f"{i}@gmail.com", "IT", "Manager", "Address"), tags='evenrow')
-            else:
-                self.my_tree.insert(parent='', index='end', iid={i}, text="Parent", values=("John", "1", "1000", "123456789", f"{i}@gmail.com", "IT", "Manager", "Address"))
-
+    
         # Configura a cor de fundo das linhas pares
         self.my_tree.tag_configure('evenrow', background='#f2f2f2')
+
+        self.set_widgets()
+        self.mostrar_players()
+
+    def mostrar_players(self):
+        with open('data/players.csv', 'r', encoding='utf-8') as file:
+            reader = csv.reader(file)
+            row = next(reader)
+            self.limpa_tabela()
+            for i, row in enumerate(reader):
+                if i % 2 == 0:
+                    self.my_tree.insert('', 'end', values=(row[0], row[1], row[2], row[3], row[4], row[5], row[6], '', ''), tags=('evenrow',))
+                else:
+                    self.my_tree.insert('', 'end', values=(row[0], row[1], row[2], row[3], row[4], row[5], row[6], '', ''))
+
+
+    def set_widgets(self):
+        # Cria as colunas da tabela
+        colunas = ["sofifa_id", "short_name", "long_name", "player_positions", "nationality", "club_name", "league_name", "global_rating", "count", "rating"]
+        for coluna in colunas:
+            self.my_tree.heading(coluna, text=coluna)
+
+        # Cria um botão que mostra os jogadores
+        self.button = Button(self.root, text="Mostrar jogadores", command=self.mostrar_players)
+        self.button.place(relx=0.01, rely=0.04, width=130, height=30)  # Posiciona o botão na janela
+
+        # Cria uma entrada de texto
+        self.entry = Entry(self.root)
+        self.entry.place(relx=0.22, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.button = Button(self.root, text="Procura por prefixo", command=lambda: self.procura_por_prefixo(self.entry.get()))
+        self.button.place(relx=0.12, rely=0.04, width=130, height=30)  # Posiciona o botão na janela
+
+        # Cria uma entrada de texto
+        self.entry2 = Entry(self.root)
+        self.entry2.place(relx=0.41, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.button2 = Button(self.root, text="Procura por usuário", command=lambda: self.procura_por_usuario(self.entry2.get()))
+        self.button2.place(relx=0.31, rely=0.04, width=130, height=30)  # Posiciona o botão na janela
+
+        # Cria uma entrada de texto
+        self.entry3 = Entry(self.root)
+        self.entry3.place(relx=0.60, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.entry4 = Entry(self.root)
+        self.entry4.place(relx=0.66, rely=0.04, width=25, height=30)  # Posiciona a caixa de texto na janela
+        self.button3 = Button(self.root, text="Procura por posição", command=lambda: self.procura_por_posicao(self.entry4.get(), self.entry3.get()))
+        self.button3.place(relx=0.50, rely=0.04, width=130, height=30)  # Posiciona o botão na janela
+
+        # Cria uma entrada de texto
+        self.entry5 = Entry(self.root)
+        self.entry5.place(relx=0.80, rely=0.04, width=100, height=30)  # Posiciona a caixa de texto na janela
+        self.button5 = Button(self.root, text="Procura por tags", command=lambda: self.procura_por_tags(self.entry5.get()))
+        self.button5.place(relx=0.70, rely=0.04, width=130, height=30)  # Posiciona o botão na janela
 
     def procura_por_prefixo(self, prefixo):
 
@@ -110,26 +109,12 @@ class MyApplication:
         response = messagebox.askyesno("Confirmação", f"Buscar pelo prefixo {prefixo}?")
         if response:
 
-            # Inicia o Treeview com as seguintes colunas:
-            self.dataCols = ("sofifa_id", "short_name", "long_name", "player_positions", "global_rating", "count")
-            self.tree = ttk.Treeview(columns=self.dataCols, show='headings')
-            self.tree.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
-
-            # Barra de rolagem
-            ysb = ttk.Scrollbar(orient=tk.VERTICAL, command=self.tree.yview)
-            self.tree.configure(yscrollcommand=ysb.set)
-            ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
-
-            # Define o textos do cabeçalho (nome em maiúsculas)
-            for c in self.dataCols:
-                self.tree.heading(c, text=c.title())
-
-            self.data.clear()
-            for player in self.base_de_dados.top_by_prefix(prefixo):
-                self.data.append((player.id, player.nome_curto, player.nome, player.posicoes, player.media_global, player.num_avaliacoes))
-
-            for item in self.data:
-                self.tree.insert('', 'end', values=item)
+            self.limpa_tabela()
+            for i, player in enumerate(self.base_de_dados.top_by_prefix(prefixo)):
+                if i % 2 == 0:
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes), tags=('evenrow',))
+                else:
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes))
 
         else:
             return
@@ -145,76 +130,99 @@ class MyApplication:
         response = messagebox.askyesno("Confirmação", f"Buscar pelo usuário {usuario}?")
         if response:
             try:
-                print(self.base_de_dados.top_by_user(usuario))
                 avaliacoes = self.base_de_dados.top_by_user(usuario)
             except Exception:
                 messagebox.showerror("Erro", "Usuário não encontrado")
                 return
 
-            # Inicia o Treeview com as seguintes colunas:
-            self.dataCols = ("sofifa_id", "short_name", "long_name", "global_rating", "count", "rating")
-            self.tree = ttk.Treeview(columns=self.dataCols, show='headings')
-            self.tree.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
-
-            # Barra de rolagem
-            ysb = ttk.Scrollbar(orient=tk.VERTICAL, command=self.tree.yview)
-            self.tree.configure(yscrollcommand=ysb.set)
-            ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
-
-            # Define o textos do cabeçalho (nome em maiúsculas)
-            for c in self.dataCols:
-                self.tree.heading(c, text=c.title())
-
-            self.data.clear()
-            for avaliacao in avaliacoes:
+            self.limpa_tabela()
+            for i, avaliacao in enumerate(avaliacoes):
                 player = self.base_de_dados.players_HT.get(avaliacao[0])
-                self.data.append((avaliacao[0], player.nome_curto, player.nome, player.media_global, player.num_avaliacoes, avaliacao[1]))
-
-            for item in self.data:
-                self.tree.insert('', 'end', values=item)
+                if i % 2 == 0:
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes, avaliacao[1]), tags=('evenrow',))
+                else:
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes, avaliacao[1]))
 
         else:
             return
 
-    def procura_por_posicao(self, posicao):
+    def procura_por_posicao(self, n, posicao):
         
         if not isinstance(posicao, str) or posicao == '':
             messagebox.showerror("Erro", "Digite uma posição válida")
+            return
+        
+        try:
+            int(n) # Se conseguir transformar pra inteiro a string é um id válido
+        except ValueError:
+            messagebox.showerror("Erro", "Digite um número válido")
             return
 
         response = messagebox.askyesno("Confirmação", f"Buscar pela posição {posicao}?")
         if response:
 
-            # Inicia o Treeview com as seguintes colunas:
-            self.dataCols = ("sofifa_id", "short_name", "long_name", "player_positions", "nationality", "club_name", "league_name", "global_rating", "count")
-            self.tree = ttk.Treeview(columns=self.dataCols, show='headings')
-            self.tree.grid(row=0, column=0, sticky=tk.N + tk.S + tk.W + tk.E)
+            self.limpa_tabela()
+            for i, player in enumerate(self.base_de_dados.top_by_position(int(n), posicao)):
+                if i % 2 == 0:
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes), tags=('evenrow',))
+                else:
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes))
 
-            # Barra de rolagem
-            xsb = ttk.Scrollbar(orient=tk.HORIZONTAL, command=self.tree.xview)
-            ysb = ttk.Scrollbar(orient=tk.VERTICAL, command=self.tree.yview)
-            self.tree.configure(xscrollcommand=xsb.set, yscrollcommand=ysb.set)
-            xsb.grid(row=1, column=0, sticky=tk.E + tk.W)
-            ysb.grid(row=0, column=1, sticky=tk.N + tk.S)
-
-            # Define o textos do cabeçalho (nome em maiúsculas)
-            for c in self.dataCols:
-                self.tree.heading(c, text=c.title())
-
-            self.data.clear()
-            for player in self.base_de_dados.top_by_position(10, posicao):
-                self.data.append((player[0], player[1], player[2], player[3], player[4], player[5], player[6], player[7], player[8]))
-
-            for item in self.data:
-                self.tree.insert('', 'end', values=item)
-            
         else:
             return
 
+    def procura_por_tags(self, tags):
 
+        if not isinstance(tags, str) or tags == '':
+            messagebox.showerror("Erro", "Digite um prefixo válido")
+            return
 
-    def _limpa_tabela(self):
-        for i in self.tree.get_children():
-            self.tree.delete(i)
+        response = messagebox.askyesno("Confirmação", f"Buscar pela(s) tag(s) {tags}?")
+        if response:
+
+            self.limpa_tabela()
+            for i, player in enumerate(self.base_de_dados.top_by_tags(tags.split(", "))):
+                if i % 2 == 0:
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes), tags=('evenrow',))
+                else:
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes))
+        else:
+            return
+        
+    def procura_por_clube(self, clube):
+            
+            if not isinstance(clube, str) or clube == '':
+                messagebox.showerror("Erro", "Digite um clube válido")
+                return
+    
+            response = messagebox.askyesno("Confirmação", f"Buscar pelo clube {clube}?")
+            if response:
+                self.limpa_tabela()
+                for i, player in enumerate(self.base_de_dados.top_by_club(clube)):
+                    if i % 2 == 0:
+                        self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes), tags=('evenrow',))
+                    else:
+                        self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes))
+            else:
+                return
+            
+    def procura_por_nacionalidade(self, nacionalidade):
+        
+        if not isinstance(nacionalidade, str) or nacionalidade == '':
+            messagebox.showerror("Erro", "Digite uma nacionalidade válida")
+            return
+        
+        response = messagebox.askyesno("Confirmação", f"Buscar pela nacionalidade {nacionalidade}?")
+        if response:
+            self.limpa_tabela()
+            for i, player in enumerate(self.base_de_dados.top_by_nationality(nacionalidade)):
+                if i % 2 == 0:
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes), tags=('evenrow',))
+                else:
+                    self.my_tree.insert('', 'end', values=(player.id, player.nome_curto, player.nome_longo, player.posicoes, player.nacionalidade, player.clube, player.liga, player.media_global, player.num_avaliacoes))
+
+    def limpa_tabela(self):
+        self.my_tree.delete(*self.my_tree.get_children())
+
 
 
